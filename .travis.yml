@@ -9,6 +9,8 @@ python:
   - "3.5"
   - "nightly"
 
-install: pip install --user -r requirements.txt
+install:
+  - pip install -e .
+  - pip install -r requirements.txt
 
 script: py.test
