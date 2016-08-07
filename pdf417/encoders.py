@@ -1,5 +1,7 @@
 from builtins import range
-from pdf417.util import switch_base
+from future.utils import iteritems
+from pdf417.data import CHARACTERS_LOOKUP, SWITCH_CODES, Submode
+from pdf417.util import switch_base, chunks
 
 
 class Encoder(object):
@@ -17,7 +19,13 @@ class Encoder(object):
         raise NotImplementedError()
 
 
-class ByteEncoder(object):
+class ByteEncoder(Encoder):
+    """Encodes data into code words using the Byte compaction mode.
+
+    Can encode: ASCII 0 to 255
+    Rate compaction: 1.2 byte per code word
+    """
+
     # Code word used to switch to Byte mode
     SWITCH_CODE_WORD = 901
 
@@ -33,11 +41,6 @@ class ByteEncoder(object):
         return self.SWITCH_CODE_WORD_ALT if len(data) % 6 == 0 \
             else self.SWITCH_CODE_WORD
 
-    def chunks(self, data, size=6):
-        """Generator which chunks data into 6 bytes batches"""
-        for i in range(0, len(data), size):
-            yield data[i:i+size]
-
     def encode(self, data, add_switch_code):
         code_words = []
 
@@ -45,7 +48,7 @@ class ByteEncoder(object):
             code_words.append(self.get_switch_code(data))
 
         # Encode in chunks of 6 bytes
-        for chunk in self.chunks(data):
+        for chunk in chunks(data, size=6):
             code_words.extend(self.encode_chunk(chunk))
 
         return code_words
@@ -68,3 +71,77 @@ class ByteEncoder(object):
         The chunk is encoded to the same number of code words leaving the base unchanged.
         """
         return [ord(i) for i in chunk]
+
+
+class TextEncoder(Encoder):
+    """Encodes data into code words using the Text compaction mode.
+
+    Can encode: ASCII 9, 10, 13 and 32-126
+    Rate compaction: 2 bytes per code word
+    """
+
+    # Code word used to switch to Text mode.
+    SWITCH_CODE_WORD = 900
+
+    # By default, encoding starts with uppercase submode
+    DEFAULT_SUBMODE = Submode.UPPER
+
+    # Since each code word consists of 2 characters, a padding value is
+    # needed when encoding a single character. 29 is used as padding because
+    # it's a switch in all 4 submodes, and doesn't add any data.
+    PADDING_INTERIM_CODE = 29
+
+    def get_switch_code(self, data):
+        return self.SWITCH_CODE_WORD
+
+    def can_encode(self, char):
+        return char in CHARACTERS_LOOKUP
+
+    def exists_in_submode(self, char, submode):
+        return char in CHARACTERS_LOOKUP and \
+               submode in CHARACTERS_LOOKUP[char]
+
+    def get_submode(self, char):
+        if char not in CHARACTERS_LOOKUP:
+            raise ValueError("Cannot encode char: " + char)
+
+        submodes = CHARACTERS_LOOKUP[char].keys()
+
+        preference = [Submode.LOWER, Submode.UPPER, Submode.MIXED, Submode.PUNCT]
+
+        for submode in preference:
+            if submode in submodes:
+                return submode
+
+        raise ValueError("Cannot encode char: " + char)
+
+    def encode_interim(self, data):
+        submode = self.DEFAULT_SUBMODE
+
+        codes = []
+
+        for char in data:
+            # Do we need to switch submode?
+            if not self.exists_in_submode(char, submode):
+                prev_submode = submode
+                submode = self.get_submode(char)
+
+                switch_codes = SWITCH_CODES[prev_submode][submode]
+                codes.extend(switch_codes)
+
+            codes.append(CHARACTERS_LOOKUP[char][submode])
+
+        return codes
+
+    def encode(self, data, add_switch_code):
+        interim_codes = self.encode_interim(data)
+        code_words = [self.SWITCH_CODE_WORD] if add_switch_code else []
+        code_words.extend([self.encode_chunk(chunk) for chunk in chunks(interim_codes, 2)])
+
+        return code_words
+
+    def encode_chunk(self, chunk):
+        if len(chunk) == 1:
+            chunk.append(self.PADDING_INTERIM_CODE)
+
+        return 30 * chunk[0] + chunk[1]

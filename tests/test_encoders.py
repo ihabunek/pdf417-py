@@ -1,11 +1,12 @@
-from pdf417.encoders import ByteEncoder
+from pdf417.encoders import ByteEncoder, TextEncoder
 
 
 def test_byte_encoder_can_encode():
     enc = ByteEncoder()
     # Can encode any byte from 0 to 255
     for x in range(0, 255):
-        assert enc.can_encode(chr(x)) == True
+        assert enc.can_encode(chr(x))
+
 
 def test_byte_encoder_switch_code():
     enc = ByteEncoder()
@@ -31,3 +32,35 @@ def test_byte_encoder():
     assert enc.encode("alcool", False) == [163, 238, 432, 766, 244]
     assert enc.encode("alcoolique", True) == [901, 163, 238, 432, 766, 244, 105, 113, 117, 101]
     assert enc.encode("alcoolique", False) == [163, 238, 432, 766, 244, 105, 113, 117, 101]
+
+
+def test_text_encoder_can_encode():
+    enc = TextEncoder()
+    # Can encode ASCII 9, 10, 13, 32, 33 and 35-126
+    # TODO: should be able to encode double quote (ASCII 34), but doesn't currently
+    for x in range(0, 255):
+        can_encode = x in [9, 10, 13, 32, 33] or x in range(35, 127)
+        assert enc.can_encode(chr(x)) == can_encode
+
+
+def test_text_encoder_encode_interim():
+    enc = TextEncoder()
+
+    # Upper transitions
+    assert enc.encode_interim("Ff") == [5, 27, 5]
+    assert enc.encode_interim("F#") == [5, 28, 15]
+    assert enc.encode_interim("F!") == [5, 28, 25, 10]
+
+    # Lower transitions
+    assert enc.encode_interim("fF") == [27, 5, 28, 28, 5]
+    assert enc.encode_interim("f#") == [27, 5, 28, 15]
+    assert enc.encode_interim("f!") == [27, 5, 28, 25, 10]
+
+
+def test_text_encoder_encode():
+    enc = TextEncoder()
+
+    assert enc.encode("Super ", True) == [900, 567, 615, 137, 809]
+    assert enc.encode("Super ", False) == [567, 615, 137, 809]
+    assert enc.encode("Super !", True) == [900, 567, 615, 137, 808, 760]
+    assert enc.encode("Super !", False) == [567, 615, 137, 808, 760]

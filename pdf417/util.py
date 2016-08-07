@@ -17,3 +17,9 @@ def to_base(value, base):
 
 def switch_base(digits, source_base, target_base):
     return to_base(from_base(digits, source_base), target_base)
+
+
+def chunks(data, size):
+    """Generator which chunks data into 6 bytes batches"""
+    for i in range(0, len(data), size):
+        yield data[i:i+size]

@@ -1,0 +1,155 @@
+# Text encoder submodes
+UPPER = 'UPPER'
+LOWER = 'LOWER'
+MIXED = 'MIXED'
+PUNCT = 'PUNCT'
+
+CHARACTERS_LOOKUP = {
+    "'": {PUNCT: 28},
+    ' ': {UPPER: 26, LOWER: 26, MIXED: 26},
+    '!': {PUNCT: 10},
+    '#': {MIXED: 15},
+    '$': {MIXED: 18, PUNCT: 18},
+    '%': {MIXED: 21},
+    '&': {MIXED: 10},
+    '(': {PUNCT: 23},
+    ')': {PUNCT: 24},
+    '*': {MIXED: 22, PUNCT: 22},
+    '+': {MIXED: 20},
+    ',': {MIXED: 13, PUNCT: 13},
+    '-': {MIXED: 16, PUNCT: 16},
+    '.': {MIXED: 17, PUNCT: 17},
+    '/': {MIXED: 19, PUNCT: 19},
+    '0': {MIXED: 0},
+    '1': {MIXED: 1},
+    '2': {MIXED: 2},
+    '3': {MIXED: 3},
+    '4': {MIXED: 4},
+    '5': {MIXED: 5},
+    '6': {MIXED: 6},
+    '7': {MIXED: 7},
+    '8': {MIXED: 8},
+    '9': {MIXED: 9},
+    ':': {MIXED: 14, PUNCT: 14},
+    ';': {PUNCT: 0},
+    '<': {PUNCT: 1},
+    '=': {MIXED: 23},
+    '>': {PUNCT: 2},
+    '?': {PUNCT: 25},
+    '@': {PUNCT: 3},
+    '[': {PUNCT: 4},
+    '\\': {PUNCT: 5},
+    '\n': {PUNCT: 15},
+    '\r': {MIXED: 11, PUNCT: 11},
+    '\t': {MIXED: 12, PUNCT: 12},
+    ']': {PUNCT: 6},
+    '^': {MIXED: 24},
+    '_': {PUNCT: 7},
+    '`': {PUNCT: 8},
+    'a': {LOWER: 0},
+    'A': {UPPER: 0},
+    'b': {LOWER: 1},
+    'B': {UPPER: 1},
+    'c': {LOWER: 2},
+    'C': {UPPER: 2},
+    'd': {LOWER: 3},
+    'D': {UPPER: 3},
+    'e': {LOWER: 4},
+    'E': {UPPER: 4},
+    'f': {LOWER: 5},
+    'F': {UPPER: 5},
+    'g': {LOWER: 6, PUNCT: 20},
+    'G': {UPPER: 6},
+    'h': {LOWER: 7},
+    'H': {UPPER: 7},
+    'i': {LOWER: 8},
+    'I': {UPPER: 8},
+    'j': {LOWER: 9},
+    'J': {UPPER: 9},
+    'k': {LOWER: 10},
+    'K': {UPPER: 10},
+    'l': {LOWER: 11},
+    'L': {UPPER: 11},
+    'm': {LOWER: 12},
+    'M': {UPPER: 12},
+    'n': {LOWER: 13},
+    'N': {UPPER: 13},
+    'o': {LOWER: 14},
+    'O': {UPPER: 14},
+    'p': {LOWER: 15},
+    'P': {UPPER: 15},
+    'q': {LOWER: 16},
+    'Q': {UPPER: 16},
+    'r': {LOWER: 17},
+    'R': {UPPER: 17},
+    's': {LOWER: 18},
+    'S': {UPPER: 18},
+    't': {LOWER: 19},
+    'T': {UPPER: 19},
+    'u': {LOWER: 20},
+    'U': {UPPER: 20},
+    'v': {LOWER: 21},
+    'V': {UPPER: 21},
+    'w': {LOWER: 22},
+    'W': {UPPER: 22},
+    'x': {LOWER: 23},
+    'X': {UPPER: 23},
+    'y': {LOWER: 24},
+    'Y': {UPPER: 24},
+    'z': {LOWER: 25},
+    'Z': {UPPER: 25},
+    '{': {PUNCT: 26},
+    '|': {PUNCT: 21},
+    '}': {PUNCT: 27},
+    '~': {PUNCT: 9},
+}
+
+# Switch codes between submodes
+SWITCH_CODE_LOOKUP = {
+    UPPER: {LOWER: 27, MIXED: 28},
+    LOWER: {MIXED: 28},
+    MIXED: {PUNCT: 25, LOWER: 27, UPPER: 28},
+    PUNCT: {UPPER: 29},
+}
+
+SINGLE_SWITCH_CODE_LOOKUP = {
+    UPPER: {PUNCT: 29},
+    LOWER: {UPPER: 27, PUNCT: 29},
+    MIXED: {PUNCT: 29},
+}
+
+# How to switch between submodes (can require two switch codes). */
+SWITCH_CODES = {
+    LOWER: {
+        UPPER: [SWITCH_CODE_LOOKUP[LOWER][MIXED],
+                SWITCH_CODE_LOOKUP[MIXED][UPPER]],
+        MIXED: [SWITCH_CODE_LOOKUP[LOWER][MIXED]],
+        PUNCT: [SWITCH_CODE_LOOKUP[LOWER][MIXED],
+                SWITCH_CODE_LOOKUP[MIXED][PUNCT]],
+    },
+    UPPER: {
+        LOWER: [SWITCH_CODE_LOOKUP[UPPER][LOWER]],
+        MIXED: [SWITCH_CODE_LOOKUP[UPPER][MIXED]],
+        PUNCT: [SWITCH_CODE_LOOKUP[UPPER][MIXED],
+                SWITCH_CODE_LOOKUP[MIXED][PUNCT]],
+    },
+    MIXED: {
+        LOWER: [SWITCH_CODE_LOOKUP[MIXED][LOWER]],
+        UPPER: [SWITCH_CODE_LOOKUP[MIXED][UPPER]],
+        PUNCT: [SWITCH_CODE_LOOKUP[MIXED][PUNCT]],
+    },
+    PUNCT: {
+        LOWER: [SWITCH_CODE_LOOKUP[PUNCT][UPPER],
+                SWITCH_CODE_LOOKUP[UPPER][LOWER]],
+        UPPER: [SWITCH_CODE_LOOKUP[PUNCT][UPPER]],
+        MIXED: [SWITCH_CODE_LOOKUP[PUNCT][UPPER],
+                SWITCH_CODE_LOOKUP[UPPER][MIXED]],
+    },
+}
+
+
+class Submode:
+    UPPER = UPPER
+    LOWER = LOWER
+    MIXED = MIXED
+    PUNCT = PUNCT
