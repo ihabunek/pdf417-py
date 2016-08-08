@@ -1,4 +1,4 @@
-from pdf417.encoders import ByteEncoder, TextEncoder
+from pdf417.encoders import ByteEncoder, TextEncoder, NumberEncoder
 
 
 def test_byte_encoder_can_encode():
@@ -64,3 +64,10 @@ def test_text_encoder_encode():
     assert enc.encode("Super ", False) == [567, 615, 137, 809]
     assert enc.encode("Super !", True) == [900, 567, 615, 137, 808, 760]
     assert enc.encode("Super !", False) == [567, 615, 137, 808, 760]
+
+
+def test_numbers_encoder_encode():
+    enc = NumberEncoder()
+
+    assert enc.encode("01234", True) == [902, 112, 434]
+    assert enc.encode("01234", False) == [112, 434]

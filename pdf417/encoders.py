@@ -1,7 +1,6 @@
-from builtins import range
-from future.utils import iteritems
+from itertools import chain
 from pdf417.data import CHARACTERS_LOOKUP, SWITCH_CODES, Submode
-from pdf417.util import switch_base, chunks
+from pdf417.util import switch_base, to_base, chunks
 
 
 class Encoder(object):
@@ -14,9 +13,16 @@ class Encoder(object):
         """Returns the switch code word for the encoding mode implemented by the encoder."""
         raise NotImplementedError()
 
-    def encode(self, data, add_switch_code):
+    def encode_data(self, data):
         """Encodes a string into codewords."""
         raise NotImplementedError()
+
+    def encode(self, data, add_switch_code):
+        """Encodes a string into codewords, takeing care of the code word."""
+        code_words = [self.get_switch_code(data)] if add_switch_code else []
+        code_words.extend(self.encode_data(data))
+
+        return code_words
 
 
 class ByteEncoder(Encoder):
@@ -41,17 +47,10 @@ class ByteEncoder(Encoder):
         return self.SWITCH_CODE_WORD_ALT if len(data) % 6 == 0 \
             else self.SWITCH_CODE_WORD
 
-    def encode(self, data, add_switch_code):
-        code_words = []
+    def encode_data(self, data):
+        encoded_chunks = [self.encode_chunk(chunk) for chunk in chunks(data, size=6)]
 
-        if add_switch_code:
-            code_words.append(self.get_switch_code(data))
-
-        # Encode in chunks of 6 bytes
-        for chunk in chunks(data, size=6):
-            code_words.extend(self.encode_chunk(chunk))
-
-        return code_words
+        return chain(*encoded_chunks)
 
     def encode_chunk(self, chunk):
         return self.encode_full_chunk(chunk) if len(chunk) == 6 \
@@ -133,15 +132,48 @@ class TextEncoder(Encoder):
 
         return codes
 
-    def encode(self, data, add_switch_code):
+    def encode_data(self, data):
         interim_codes = self.encode_interim(data)
-        code_words = [self.SWITCH_CODE_WORD] if add_switch_code else []
-        code_words.extend([self.encode_chunk(chunk) for chunk in chunks(interim_codes, 2)])
 
-        return code_words
+        return [self.encode_chunk(chunk) for chunk in chunks(interim_codes, 2)]
 
     def encode_chunk(self, chunk):
         if len(chunk) == 1:
             chunk.append(self.PADDING_INTERIM_CODE)
 
         return 30 * chunk[0] + chunk[1]
+
+
+class NumberEncoder(Encoder):
+    """Encodes data into code words using the Numbers compaction mode.
+
+    Can encode: Digits 0-9, ASCII
+    Rate compaction: 2.9 bytes per code word
+    """
+
+    # Code word used to switch to Number mode.
+    SWITCH_CODE_WORD = 902
+
+    def can_encode(self, char):
+        return 48 <= ord(char) <= 57
+
+    def get_switch_code(self, data):
+        return self.SWITCH_CODE_WORD
+
+    def encode_data(self, data):
+        """Encodes a string containing numeric digits into codewords.
+
+        The "Numeric" mode is a conversion from base 10 to base 900.
+
+        - numbers are taken in batches up to 44 digits
+        - digit "1" is added to the beginning of the group
+          (it is removed by the decoding procedure)
+        - base is changed from 10 to 900
+        """
+        encoded_chunks = [self.encode_chunk(chunk) for chunk in chunks(data, size=44)]
+
+        return chain(*encoded_chunks)
+
+    def encode_chunk(self, chunk):
+        value = int("1" + chunk)
+        return to_base(value, 900)
