@@ -1,4 +1,4 @@
-from pdf417.encoders import ByteEncoder, TextEncoder, NumberEncoder
+from pdf417.encoders import ByteEncoder, TextEncoder, NumberEncoder, DataEncoder
 
 
 def test_byte_encoder_can_encode():
@@ -71,3 +71,19 @@ def test_numbers_encoder_encode():
 
     assert enc.encode("01234", True) == [902, 112, 434]
     assert enc.encode("01234", False) == [112, 434]
+
+
+def test_data_encoder_encode():
+    enc = DataEncoder()
+
+    # When starting with text, the first code word does not need to be the switch
+    assert list(enc.encode("ABC123")) == [1, 89, 902, 1, 223]
+
+    # When starting with numbers, we do need to switch
+    assert list(enc.encode("123ABC")) == [902, 1, 223, 900, 1, 89]
+
+    # Also with bytes
+    assert list(enc.encode("\x0B")) == [901, 11]
+
+    # Alternate bytes switch code when number of bytes is divisble by 6
+    assert list(enc.encode("\x0B\x0B\x0B\x0B\x0B\x0B")) == [924, 18, 455, 694, 754, 291]
