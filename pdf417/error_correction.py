@@ -14,8 +14,7 @@ FACTORS = [
 
 
 def compute_error_correction_code_words(data_words, level):
-    if level < 0 or level > 8:
-        raise ValueError("Error correction level must be between 0 and 8.")
+    assert 0 <= level <= 8
 
     # Correction factors for the given level
     factors = FACTORS[level]
