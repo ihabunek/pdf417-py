@@ -1,4 +1,4 @@
-from pdf417 import encode_low, encode_high
+from pdf417.encoding import encode, encode_high
 
 TEST_DATA = '\n'.join([
     'HRVHUB30',
@@ -68,4 +68,4 @@ def test_encode_low():
         [130728, 111456, 83468, 108060, 74136, 117830, 74048, 69102, 102752, 260649]
     ]
 
-    assert list(encode_low(TEST_DATA, 6, 2)) == expected
+    assert list(encode(TEST_DATA, 6, 2)) == expected
