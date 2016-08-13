@@ -79,13 +79,13 @@ The `render_image` function takes the following options:
 
 Colors can be specified as hex codes or using HTML color names.
 
-![Defining security level](images/4_rendering.jpg)
-
 ```py
 codes = encode(text, columns=3)
 image = render_image(codes, scale=5, ratio=2, padding=5, fg_color="Indigo", bg_color="#ddd")
 image.show()
 ```
+
+![Defining security level](images/4_rendering.jpg)
 
 ## See also
 
