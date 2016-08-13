@@ -83,7 +83,7 @@ Colors can be specified as hex codes or using HTML color names.
 
 ```py
 codes = encode(text, columns=3)
-image = render_image(codes, scale=6, ratio=2, fg_color="Indigo", bg_color="#ccc")
+image = render_image(codes, scale=5, ratio=2, padding=5, fg_color="Indigo", bg_color="#ddd")
 image.show()
 ```
 
