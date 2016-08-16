@@ -1,4 +1,4 @@
-from pdf417.encoders import ByteEncoder, TextEncoder, NumberEncoder, DataEncoder
+from pdf417.compaction import ByteEncoder, TextEncoder, NumberEncoder, DataEncoder
 
 
 def test_byte_encoder_can_encode():
