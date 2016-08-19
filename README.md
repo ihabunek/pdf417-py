@@ -1,7 +1,7 @@
 PDF417 2D barcode generator for Python
 ======================================
 
-[![Travis](https://img.shields.io/travis/ihabunek/pdf417-py.svg?maxAge=3600&style=flat-square)]()
+[![Travis](https://img.shields.io/travis/ihabunek/pdf417-py.svg?maxAge=3600&style=flat-square)](https://travis-ci.org/ihabunek/pdf417-py)
 [![Author](https://img.shields.io/badge/author-%40ihabunek-blue.svg?style=flat-square)](https://twitter.com/ihabunek)
 
 Licensed under the MIT License, see [LICENSE.md](LICENSE.md).
