@@ -9,6 +9,14 @@ Easily encode your data into a 2D barcode using the PDF417 format.
 
 Licensed under the MIT License, see [LICENSE.md](LICENSE.md).
 
+## Installation
+
+Install from [PyPI](https://pypi.python.org/pypi/pdf417gen/0.1.0):
+
+```
+pip install pdf417gen
+```
+
 ## Usage
 
 Creating bar codes is done in two steps:
