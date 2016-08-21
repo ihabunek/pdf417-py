@@ -99,6 +99,10 @@ The `render_image` function takes the following options:
 \* A module is the smallest element of a barcode, analogous to a pixel. Modules
    in a PDF417 bar code are tall and narrow.
 
+The function returns a
+[Pillow Image](pillow.readthedocs.io/en/3.2.x/reference/Image.html) object
+containing the barcode.
+
 Colors can be specified as hex codes or using HTML color names.
 
 ```py
@@ -118,6 +122,10 @@ The `render_svg` function takes the following options:
 * `ratio` - module height to width ratio (default: 3)
 * `padding` - image padding, in pixels (default: 20)
 * `color` - foreground color (default: `#000000`)
+
+The function returns a
+[ElementTree](https://docs.python.org/3.5/library/xml.etree.elementtree.html#elementtree-objects)
+object containing the barcode in SVG format.
 
 Unlike `render_image`, this function does not take a background color option.
 The background is left transparent.
