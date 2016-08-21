@@ -34,7 +34,7 @@ setup(
     ],
     packages=['pdf417'],
     install_requires=[
-        'Pillow>=3.0.0',
+        'Pillow>=2.0.0',
         'future'
     ]
 )

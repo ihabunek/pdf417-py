@@ -51,16 +51,16 @@ def test_render_image():
     assert isinstance (image, Image)
 
     image = render_image(codes, scale=1, ratio=1, padding=0)
-    assert (image.width, image.height) == (width, height)
+    assert image.size == (width, height)
 
     image = render_image(codes, scale=2, ratio=1, padding=0)
-    assert (image.width, image.height) == (2 * width, 2 * height)
+    assert image.size == (2 * width, 2 * height)
 
     image = render_image(codes, scale=2, ratio=2, padding=0)
-    assert (image.width, image.height) == (2 * width, 4 * height)
+    assert image.size == (2 * width, 4 * height)
 
     image = render_image(codes, scale=2, ratio=2, padding=20)
-    assert (image.width, image.height) == (2 * width + 40, 4 * height + 40)
+    assert image.size == (2 * width + 40, 4 * height + 40)
 
     # Check actual pixels
     fg_color="LemonChiffon"
