@@ -1,9 +1,21 @@
 from pdf417 import render_svg, render_image, encode
-from pdf417.rendering import barcode_size, modules
+from pdf417.rendering import barcode_size, modules, rgb_to_hex
 from PIL.Image import Image
 from xml.etree.ElementTree import ElementTree
 
 codes = encode("hello world!")
+
+
+def test_rgb_to_hex():
+    assert rgb_to_hex((255, 0, 0)) == "#ff0000"
+    assert rgb_to_hex((0, 255, 0)) == "#00ff00"
+    assert rgb_to_hex((0, 0, 255)) == "#0000ff"
+
+    assert rgb_to_hex((100, 0, 0)) == "#640000"
+    assert rgb_to_hex((0, 100, 0)) == "#006400"
+    assert rgb_to_hex((0, 0, 100)) == "#000064"
+
+    assert rgb_to_hex((111, 222, 32)) == "#6fde20"
 
 
 def test_render_svg():
@@ -12,7 +24,7 @@ def test_render_svg():
     description = "hi there"
 
     tree = render_svg(codes, scale=scale, ratio=ratio, description=description)
-    assert type(tree) == ElementTree
+    assert isinstance (tree, ElementTree)
     assert tree.findtext("description") == description
 
     # Test expected size
@@ -36,7 +48,7 @@ def test_render_image():
     width, height = barcode_size(codes)
 
     image = render_image(codes)
-    assert type(image) == Image
+    assert isinstance (image, Image)
 
     image = render_image(codes, scale=1, ratio=1, padding=0)
     assert (image.width, image.height) == (width, height)

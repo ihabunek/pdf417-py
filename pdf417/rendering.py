@@ -33,7 +33,7 @@ def parse_color(color):
 
 
 def rgb_to_hex(color):
-    return '#{:02x}{:02x}{:02x}'.format(*color)
+    return '#{0:02x}{1:02x}{2:02x}'.format(*color)
 
 
 def render_image(codes, scale=3, ratio=3, padding=20, fg_color="#000", bg_color="#FFF"):
