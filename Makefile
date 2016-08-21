@@ -1,6 +1,15 @@
-default :
-	python setup.py bdist
-	python setup.py bdist_wheel --universal
+default : clean dist
+
+dist :
+	@echo "\nMaking source"
+	@echo "-------------"
+	@python setup.py bdist
+
+	@echo "\nMaking wheel"
+	@echo "-------------"
+	@python setup.py bdist_wheel --universal
+
+	@echo "\nDone."
 
 clean :
 	rm -rf build dist *.egg-info MANIFEST
