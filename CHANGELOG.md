@@ -1,7 +1,7 @@
 pdf417gen changelog
 ===================
 
-### 0.2.0 (TBA)
+### 0.2.0 (2016-08-21)
 
 * Add SVG renederer
 
