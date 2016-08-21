@@ -22,28 +22,38 @@ pip install pdf417gen
 
 Creating bar codes is done in two steps:
 
-* `pdf417.encode()` will convert text or bytes into an array of low level code
-  words which are used to form the bar code.
-* `pdf417.render_image()` takes the code words and returns the bar code as a
-  [Pillow Image](https://pillow.readthedocs.io/en/3.3.x/reference/Image.html)
-  object.
+* Encode a string to a list of code words using `encode()`
+* Render the barcode using one of the rendering functions: `render_image()`,
+  `render_svg()`.
 
-### Basic usage
+Usage overview:
 
 ```py
-from pdf417 import encode, render_image
+from pdf417 import encode, render_image, render_svg
 
+# Some data to encode
 text = """Beautiful is better than ugly.
 Explicit is better than implicit.
 Simple is better than complex.
 Complex is better than complicated."""
 
+# Convert to code words
 codes = encode(text)
-image = render_image(codes)
-image.show()
+
+# Generate barcode as image
+image = render_image(codes)  # Pillow Image object
+image.save('barcode.jpg')
+
+# Generate barcode as SVG
+svg = render_svg(codes)  # ElementTree object
+svg.write("barcode.svg")
 ```
 
-![Basic usage](images/1_basic.jpg)
+## Encoding data
+
+The first step is to encode your data to a list of code words.
+
+`encode(data, columns=6, security_level=2˙)`
 
 ### Columns
 
@@ -76,18 +86,18 @@ image.show()
 
 ![Defining security level](images/3_security_level.jpg)
 
-### Image rendering options
-
-The PDF417 bar code is constructed of bars called modules. They are like pixels
-but not square.
+## Render image
 
 The `render_image` function takes the following options:
 
-* `scale` - the scale of the barcode elements, the width of modules in px (default: 3)
-* `ratio` - the height to width ratio of modules (default: 3)
-* `padding` - image padding in px (default: 20)
-* `fg_color` - foreground color (default: '#000000')
-* `bg_color` - background color (default: '#FFFFFF')
+* `scale` - module width, in pixels (default: 3)
+* `ratio` - module height to width ratio (default: 3)
+* `padding` - image padding, in pixels (default: 20)
+* `fg_color` - foreground color (default: `#000000`)
+* `bg_color` - background color (default: `#FFFFFF`)
+
+\* A module is the smallest element of a barcode, analogous to a pixel. Modules
+   in a PDF417 bar code are tall and narrow.
 
 Colors can be specified as hex codes or using HTML color names.
 
@@ -98,6 +108,25 @@ image.show()
 ```
 
 ![Defining security level](images/4_rendering.jpg)
+
+
+## Render SVG
+
+The `render_svg` function takes the following options:
+
+* `scale` - module width, in pixels (default: 3)
+* `ratio` - module height to width ratio (default: 3)
+* `padding` - image padding, in pixels (default: 20)
+* `color` - foreground color (default: `#000000`)
+
+Unlike `render_image`, this function does not take a background color option.
+The background is left transparent.
+
+```py
+codes = encode(text, columns=3)
+svg = render_svg(codes, scale=5, ratio=2, color="Seaweed")
+svg.write('barcode.svg')
+```
 
 ## See also
 
