@@ -4,6 +4,7 @@ PDF417 barcode generator for Python
 [![Travis](https://img.shields.io/travis/ihabunek/pdf417-py.svg?maxAge=3600&style=flat-square)](https://travis-ci.org/ihabunek/pdf417-py)
 [![Author](https://img.shields.io/badge/author-%40ihabunek-blue.svg?maxAge=3600&style=flat-square)](https://twitter.com/ihabunek)
 [![License](https://img.shields.io/github/license/ihabunek/pdf417-py.svg?maxAge=3600&style=flat-square)](https://opensource.org/licenses/MIT)
+[![Python Package Index](https://img.shields.io/pypi/v/pdf417gen.svg?maxAge=3600&style=flat-square)](https://pypi.python.org/pypi/pdf417gen)
 
 Easily encode your data into a 2D barcode using the PDF417 format.
 
@@ -11,7 +12,7 @@ Licensed under the MIT License, see [LICENSE.md](LICENSE.md).
 
 ## Installation
 
-Install from [PyPI](https://pypi.python.org/pypi/pdf417gen/0.1.0):
+Install using pip:
 
 ```
 pip install pdf417gen
