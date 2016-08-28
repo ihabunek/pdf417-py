@@ -3,7 +3,7 @@ from __future__ import division
 import math
 
 from pdf417.codes import map_code_word
-from pdf417.compaction import DataEncoder
+from pdf417.compaction import compact
 from pdf417.error_correction import compute_error_correction_code_words
 from pdf417.util import chunks
 
@@ -65,7 +65,7 @@ def encode_high(data, columns, security_level):
     """
 
     # Encode data to code words
-    data_words = list(DataEncoder().encode(data))
+    data_words = list(compact(data))
     data_count = len(data_words)
 
     # Get the padding to align data to column count
