@@ -2,7 +2,7 @@ from __future__ import division
 
 
 def from_base(digits, base):
-    return sum([v * (256 ** (len(digits) - k - 1)) for k, v in enumerate(digits)])
+    return sum([v * (base ** (len(digits) - k - 1)) for k, v in enumerate(digits)])
 
 
 def to_base(value, base):
