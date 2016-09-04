@@ -14,6 +14,8 @@ PDF417 barcode generator for Python
 
 Easily encode your data into a 2D barcode using the PDF417 format.
 
+.. image:: https://raw.githubusercontent.com/ihabunek/pdf417-py/master/images/1_basic.jpg
+
 Licensed under the MIT License, see `LICENSE <LICENSE>`_.
 
 Installation
@@ -80,7 +82,7 @@ of columns to decrease the rows count.
     image = render_image(codes)
     image.show()
 
-.. image:: images/2_columns.jpg
+.. image:: https://raw.githubusercontent.com/ihabunek/pdf417-py/master/images/2_columns.jpg
 
 Security level
 ~~~~~~~~~~~~~~
@@ -97,7 +99,7 @@ produces 512. The default security level is 2.
     image = render_image(codes)
     image.show()
 
-.. image:: images/3_security_level.jpg
+.. image:: https://raw.githubusercontent.com/ihabunek/pdf417-py/master/images/3_security_level.jpg
 
 Render image
 ------------
@@ -125,7 +127,7 @@ Colors can be specified as hex codes or using HTML color names.
     image = render_image(codes, scale=5, ratio=2, padding=5, fg_color="Indigo", bg_color="#ddd")
     image.show()
 
-.. image:: images/4_rendering.jpg
+.. image:: https://raw.githubusercontent.com/ihabunek/pdf417-py/master/images/4_rendering.jpg
 
 Render SVG
 ----------
