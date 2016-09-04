@@ -1,4 +1,5 @@
 from builtins import range
+
 from .data import ERROR_CORRECTION_FACTORS
 
 

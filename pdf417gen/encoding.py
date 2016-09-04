@@ -2,10 +2,10 @@ from __future__ import division
 
 import math
 
-from pdf417.codes import map_code_word
-from pdf417.compaction import compact
-from pdf417.error_correction import compute_error_correction_code_words
-from pdf417.util import chunks
+from .codes import map_code_word
+from .compaction import compact
+from .error_correction import compute_error_correction_code_words
+from .util import chunks
 
 START_CHARACTER = 0x1fea8
 STOP_CHARACTER = 0x3fa29

@@ -1,5 +1,5 @@
-from pdf417 import render_svg, render_image, encode
-from pdf417.rendering import barcode_size, modules, rgb_to_hex
+from pdf417gen import render_svg, render_image, encode
+from pdf417gen.rendering import barcode_size, modules, rgb_to_hex
 from PIL.Image import Image
 from xml.etree.ElementTree import ElementTree
 

@@ -29,7 +29,7 @@ Creating bar codes is done in two steps:
 Usage overview:
 
 ```py
-from pdf417 import encode, render_image, render_svg
+from pdf417gen import encode, render_image, render_svg
 
 # Some data to encode
 text = """Beautiful is better than ugly.

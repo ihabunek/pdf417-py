@@ -1,6 +1,7 @@
 from itertools import chain
-from pdf417.data import CHARACTERS_LOOKUP, SWITCH_CODES, Submode
-from pdf417.util import switch_base, to_base, chunks
+
+from .data import CHARACTERS_LOOKUP, SWITCH_CODES, Submode
+from .util import switch_base, to_base, chunks
 
 
 # -- Number compaction mode ----------------------------------------------------

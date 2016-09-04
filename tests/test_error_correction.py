@@ -1,4 +1,4 @@
-from pdf417.error_correction import compute_error_correction_code_words
+from pdf417gen.error_correction import compute_error_correction_code_words
 
 
 def test_error_correction():

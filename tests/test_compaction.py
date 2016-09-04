@@ -1,4 +1,4 @@
-from pdf417.compaction import compact, compact_bytes, compact_numbers, compact_text, compact_text_interim
+from pdf417gen.compaction import compact, compact_bytes, compact_numbers, compact_text, compact_text_interim
 
 
 # def test_byte_encoder_can_encode():

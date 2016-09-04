@@ -1,4 +1,4 @@
-from pdf417.encoding import encode, encode_high
+from pdf417gen.encoding import encode, encode_high
 
 TEST_DATA = '\n'.join([
     'HRVHUB30',
