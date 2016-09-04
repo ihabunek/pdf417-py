@@ -3,7 +3,7 @@ default : clean dist
 dist :
 	@echo "\nMaking source"
 	@echo "-------------"
-	@python setup.py bdist
+	@python setup.py sdist
 
 	@echo "\nMaking wheel"
 	@echo "-------------"
