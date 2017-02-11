@@ -13,7 +13,8 @@ def compact_numbers(data):
     Rate compaction: 2.9 bytes per code word
     """
     def compact_chunk(chunk):
-        value = int("1" + chunk)
+        number = "".join([chr(x) for x in chunk])
+        value = int("1" + number)
         return to_base(value, 900)
 
     compacted_chunks = [compact_chunk(chunk) for chunk in chunks(data, size=44)]
@@ -31,7 +32,7 @@ def compact_text_interim(data):
 
     def get_submode(char):
         if char not in CHARACTERS_LOOKUP:
-            raise ValueError("Cannot encode char: " + char)
+            raise ValueError("Cannot encode char: {}".format(char))
 
         submodes = CHARACTERS_LOOKUP[char].keys()
 
@@ -41,7 +42,7 @@ def compact_text_interim(data):
             if submode in submodes:
                 return submode
 
-        raise ValueError("Cannot encode char: " + char)
+        raise ValueError("Cannot encode char: {}".format(char))
 
     # By default, encoding starts with uppercase submode
     submode = Submode.UPPER
@@ -103,7 +104,8 @@ def compact_bytes(data):
 
         The chunk is encoded to 5 code words by changing the base from 256 to 900.
         """
-        digits = [ord(i) for i in chunk]
+
+        digits = [i for i in chunk]
         return switch_base(digits, 256, 900)
 
     def compact_incomplete_chunk(chunk):
@@ -111,7 +113,7 @@ def compact_bytes(data):
 
         The chunk is encoded to 6 code words leaving the base unchanged.
         """
-        return [ord(i) for i in chunk]
+        return [i for i in chunk]
 
     compacted_chunks = [compact_chunk(chunk) for chunk in chunks(data, size=6)]
 
@@ -151,7 +153,7 @@ def compact(data):
 
         # Default compaction mode is Text (does not require an initial switch code)
         function = compact_text
-        chunk = ""
+        chunk = []
 
         for char in data:
             new_function = get_optimal_compactor_fn(char)
@@ -159,9 +161,9 @@ def compact(data):
                 if chunk:
                     yield chunk, function
 
-                chunk = ""
+                chunk = []
                 function = new_function
-            chunk += char
+            chunk.append(char)
 
         if chunk:
             yield chunk, function
@@ -171,7 +173,7 @@ def compact(data):
 
 
 def get_optimal_compactor_fn(char):
-    if 48 <= ord(char) <= 57:
+    if 48 <= char <= 57:
         return compact_numbers
 
     if char in CHARACTERS_LOOKUP:

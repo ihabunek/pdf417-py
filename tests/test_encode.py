@@ -1,4 +1,6 @@
-from pdf417gen.encoding import encode, encode_high
+# -*- coding: utf-8 -*-
+
+from pdf417gen.encoding import encode, encode_high, to_bytes
 
 TEST_DATA = '\n'.join([
     'HRVHUB30',
@@ -34,7 +36,7 @@ def test_encode_high():
         570, 805, 26, 30, 536, 314, 104, 634, 865, 479, 900, 713, 846, 93, 59,
         313, 515, 294, 844]
 
-    assert encode_high(TEST_DATA, 6, 2) == expected
+    assert encode_high(to_bytes(TEST_DATA), 6, 2) == expected
 
 
 def test_encode_low():
@@ -69,3 +71,17 @@ def test_encode_low():
     ]
 
     assert list(encode(TEST_DATA, 6, 2)) == expected
+
+
+def test_encode_unicode():
+    # These two should encode to the same string
+    uc = u"love 💔"
+    by = b"love \xf0\x9f\x92\x94"
+
+    expected = [
+        [130728, 120256, 108592, 115526, 126604, 103616, 66594, 126094, 128318, 260649],
+        [130728, 125456, 83916, 107396, 83872, 97968, 77702, 98676, 128352, 260649],
+        [130728, 86496, 128114, 90190, 98038, 72124, 72814, 81040, 86256, 260649]]
+
+    assert encode(uc) == expected
+    assert encode(by) == expected
