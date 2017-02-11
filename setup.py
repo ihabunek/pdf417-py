@@ -2,9 +2,8 @@
 
 from setuptools import setup
 
-long_description = """
-Easily encode your data into a 2D barcode using the PDF417 format.
-"""
+with open("README.rst") as readme:
+    long_description = readme.read()
 
 setup(
     name='pdf417gen',
