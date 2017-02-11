@@ -13,3 +13,6 @@ dist :
 
 clean :
 	rm -rf build dist *.egg-info MANIFEST
+
+publish :
+	twine upload dist/*
