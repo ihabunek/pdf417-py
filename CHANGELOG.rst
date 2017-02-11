@@ -2,11 +2,14 @@
 pdf417gen changelog
 ===================
 
-0.4.0 (2017-02-11)
+0.5.0 (2017-02-11)
 ------------------
 
 * Drop support for Python 3.0, 3.1 and 3.2
 * Fix handling of byte and string input in Python 3 (#4)
+
+0.4.0 (skipped)
+---------------
 
 0.3.0 (2016-09-04)
 ------------------
