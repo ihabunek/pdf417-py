@@ -2,8 +2,14 @@
 pdf417gen changelog
 ===================
 
-0.3.0 (TBA)
------------
+0.4.0 (2017-02-11)
+------------------
+
+* Drop support for Python 3.0, 3.1 and 3.2
+* Fix handling of byte and string input in Python 3 (#4)
+
+0.3.0 (2016-09-04)
+------------------
 
 * **BC BREAK**: renamed package from ``pdf417`` to ``pdf417gen`` for consistency
   with the name of the PyPI package

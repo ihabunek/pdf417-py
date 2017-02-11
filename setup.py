@@ -8,7 +8,7 @@ Easily encode your data into a 2D barcode using the PDF417 format.
 
 setup(
     name='pdf417gen',
-    version='0.2.0',
+    version='0.4.0',
     description='PDF417 2D barcode generator for Python',
     long_description=long_description,
     author='Ivan Habunek',
