@@ -2,10 +2,10 @@ from __future__ import division
 
 import math
 
-from .codes import map_code_word
-from .compaction import compact
-from .error_correction import compute_error_correction_code_words
-from .util import chunks
+from pdf417gen.codes import map_code_word
+from pdf417gen.compaction import compact
+from pdf417gen.error_correction import compute_error_correction_code_words
+from pdf417gen.util import chunks, to_bytes
 
 START_CHARACTER = 0x1fea8
 STOP_CHARACTER = 0x3fa29
@@ -19,8 +19,11 @@ MAX_CODE_WORDS = 928
 MIN_ROWS = 3
 MAX_ROWS = 90
 
+# Encoding to use when given a string and encoding is not specified
+DEFAULT_ENCODING = 'utf-8'
 
-def encode(data, columns=6, security_level=2):
+
+def encode(data, columns=6, security_level=2, encoding=DEFAULT_ENCODING):
     if columns < 1 or columns > 30:
         raise ValueError("'columns' must be between 1 and 30. Given: %r" % columns)
 
@@ -29,8 +32,11 @@ def encode(data, columns=6, security_level=2):
 
     num_cols = columns  # Nomenclature
 
+    # Prepare input
+    data_bytes = to_bytes(data, encoding)
+
     # Convert data to code words and split into rows
-    code_words = encode_high(data, num_cols, security_level)
+    code_words = encode_high(data_bytes, num_cols, security_level)
     rows = list(chunks(code_words, num_cols))
 
     return list(encode_rows(rows, num_cols, security_level))

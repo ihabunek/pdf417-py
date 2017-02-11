@@ -5,103 +5,103 @@ MIXED = 'MIXED'
 PUNCT = 'PUNCT'
 
 CHARACTERS_LOOKUP = {
-    "'": {PUNCT: 28},
-    ' ': {UPPER: 26, LOWER: 26, MIXED: 26},
-    '!': {PUNCT: 10},
-    '#': {MIXED: 15},
-    '$': {MIXED: 18, PUNCT: 18},
-    '%': {MIXED: 21},
-    '&': {MIXED: 10},
-    '(': {PUNCT: 23},
-    ')': {PUNCT: 24},
-    '*': {MIXED: 22, PUNCT: 22},
-    '+': {MIXED: 20},
-    ',': {MIXED: 13, PUNCT: 13},
-    '-': {MIXED: 16, PUNCT: 16},
-    '.': {MIXED: 17, PUNCT: 17},
-    '/': {MIXED: 19, PUNCT: 19},
-    '0': {MIXED: 0},
-    '1': {MIXED: 1},
-    '2': {MIXED: 2},
-    '3': {MIXED: 3},
-    '4': {MIXED: 4},
-    '5': {MIXED: 5},
-    '6': {MIXED: 6},
-    '7': {MIXED: 7},
-    '8': {MIXED: 8},
-    '9': {MIXED: 9},
-    ':': {MIXED: 14, PUNCT: 14},
-    ';': {PUNCT: 0},
-    '<': {PUNCT: 1},
-    '=': {MIXED: 23},
-    '>': {PUNCT: 2},
-    '?': {PUNCT: 25},
-    '@': {PUNCT: 3},
-    '[': {PUNCT: 4},
-    '\\': {PUNCT: 5},
-    '\n': {PUNCT: 15},
-    '\r': {MIXED: 11, PUNCT: 11},
-    '\t': {MIXED: 12, PUNCT: 12},
-    ']': {PUNCT: 6},
-    '^': {MIXED: 24},
-    '_': {PUNCT: 7},
-    '`': {PUNCT: 8},
-    'a': {LOWER: 0},
-    'A': {UPPER: 0},
-    'b': {LOWER: 1},
-    'B': {UPPER: 1},
-    'c': {LOWER: 2},
-    'C': {UPPER: 2},
-    'd': {LOWER: 3},
-    'D': {UPPER: 3},
-    'e': {LOWER: 4},
-    'E': {UPPER: 4},
-    'f': {LOWER: 5},
-    'F': {UPPER: 5},
-    'g': {LOWER: 6, PUNCT: 20},
-    'G': {UPPER: 6},
-    'h': {LOWER: 7},
-    'H': {UPPER: 7},
-    'i': {LOWER: 8},
-    'I': {UPPER: 8},
-    'j': {LOWER: 9},
-    'J': {UPPER: 9},
-    'k': {LOWER: 10},
-    'K': {UPPER: 10},
-    'l': {LOWER: 11},
-    'L': {UPPER: 11},
-    'm': {LOWER: 12},
-    'M': {UPPER: 12},
-    'n': {LOWER: 13},
-    'N': {UPPER: 13},
-    'o': {LOWER: 14},
-    'O': {UPPER: 14},
-    'p': {LOWER: 15},
-    'P': {UPPER: 15},
-    'q': {LOWER: 16},
-    'Q': {UPPER: 16},
-    'r': {LOWER: 17},
-    'R': {UPPER: 17},
-    's': {LOWER: 18},
-    'S': {UPPER: 18},
-    't': {LOWER: 19},
-    'T': {UPPER: 19},
-    'u': {LOWER: 20},
-    'U': {UPPER: 20},
-    'v': {LOWER: 21},
-    'V': {UPPER: 21},
-    'w': {LOWER: 22},
-    'W': {UPPER: 22},
-    'x': {LOWER: 23},
-    'X': {UPPER: 23},
-    'y': {LOWER: 24},
-    'Y': {UPPER: 24},
-    'z': {LOWER: 25},
-    'Z': {UPPER: 25},
-    '{': {PUNCT: 26},
-    '|': {PUNCT: 21},
-    '}': {PUNCT: 27},
-    '~': {PUNCT: 9},
+    9:   {MIXED: 12, PUNCT: 12},               # \t
+    10:  {PUNCT: 15},                          # \n
+    13:  {MIXED: 11, PUNCT: 11},               # \r
+    32:  {UPPER: 26, LOWER: 26, MIXED: 26},    # SPACE
+    33:  {PUNCT: 10},                          # !
+    35:  {MIXED: 15},                          # #
+    36:  {MIXED: 18, PUNCT: 18},               # $
+    37:  {MIXED: 21},                          # %
+    38:  {MIXED: 10},                          # &
+    39:  {PUNCT: 28},                          # '
+    40:  {PUNCT: 23},                          # (
+    41:  {PUNCT: 24},                          # )
+    42:  {MIXED: 22, PUNCT: 22},               # *
+    43:  {MIXED: 20},                          # +
+    44:  {MIXED: 13, PUNCT: 13},               # ,
+    45:  {MIXED: 16, PUNCT: 16},               # -
+    46:  {MIXED: 17, PUNCT: 17},               # .
+    47:  {MIXED: 19, PUNCT: 19},               # /
+    48:  {MIXED: 0},                           # 0
+    49:  {MIXED: 1},                           # 1
+    50:  {MIXED: 2},                           # 2
+    51:  {MIXED: 3},                           # 3
+    52:  {MIXED: 4},                           # 4
+    53:  {MIXED: 5},                           # 5
+    54:  {MIXED: 6},                           # 6
+    55:  {MIXED: 7},                           # 7
+    56:  {MIXED: 8},                           # 8
+    57:  {MIXED: 9},                           # 9
+    58:  {MIXED: 14, PUNCT: 14},               # :
+    59:  {PUNCT: 0},                           # ;
+    60:  {PUNCT: 1},                           # <
+    61:  {MIXED: 23},                          # =
+    62:  {PUNCT: 2},                           # >
+    63:  {PUNCT: 25},                          # ?
+    64:  {PUNCT: 3},                           # @
+    65:  {UPPER: 0},                           # A
+    66:  {UPPER: 1},                           # B
+    67:  {UPPER: 2},                           # C
+    68:  {UPPER: 3},                           # D
+    69:  {UPPER: 4},                           # E
+    70:  {UPPER: 5},                           # F
+    71:  {UPPER: 6},                           # G
+    72:  {UPPER: 7},                           # H
+    73:  {UPPER: 8},                           # I
+    74:  {UPPER: 9},                           # J
+    75:  {UPPER: 10},                          # K
+    76:  {UPPER: 11},                          # L
+    77:  {UPPER: 12},                          # M
+    78:  {UPPER: 13},                          # N
+    79:  {UPPER: 14},                          # O
+    80:  {UPPER: 15},                          # P
+    81:  {UPPER: 16},                          # Q
+    82:  {UPPER: 17},                          # R
+    83:  {UPPER: 18},                          # S
+    84:  {UPPER: 19},                          # T
+    85:  {UPPER: 20},                          # U
+    86:  {UPPER: 21},                          # V
+    87:  {UPPER: 22},                          # W
+    88:  {UPPER: 23},                          # X
+    89:  {UPPER: 24},                          # Y
+    90:  {UPPER: 25},                          # Z
+    91:  {PUNCT: 4},                           # [
+    92:  {PUNCT: 5},                           # \
+    93:  {PUNCT: 6},                           # ]
+    94:  {MIXED: 24},                          # ^
+    95:  {PUNCT: 7},                           # _
+    96:  {PUNCT: 8},                           # `
+    97:  {LOWER: 0},                           # a
+    98:  {LOWER: 1},                           # b
+    99:  {LOWER: 2},                           # c
+    100: {LOWER: 3},                           # d
+    101: {LOWER: 4},                           # e
+    102: {LOWER: 5},                           # f
+    103: {LOWER: 6, PUNCT: 20},                # g
+    104: {LOWER: 7},                           # h
+    105: {LOWER: 8},                           # i
+    106: {LOWER: 9},                           # j
+    107: {LOWER: 10},                          # k
+    108: {LOWER: 11},                          # l
+    109: {LOWER: 12},                          # m
+    110: {LOWER: 13},                          # n
+    111: {LOWER: 14},                          # o
+    112: {LOWER: 15},                          # p
+    113: {LOWER: 16},                          # q
+    114: {LOWER: 17},                          # r
+    115: {LOWER: 18},                          # s
+    116: {LOWER: 19},                          # t
+    117: {LOWER: 20},                          # u
+    118: {LOWER: 21},                          # v
+    119: {LOWER: 22},                          # w
+    120: {LOWER: 23},                          # x
+    121: {LOWER: 24},                          # y
+    122: {LOWER: 25},                          # z
+    123: {PUNCT: 26},                          # {
+    124: {PUNCT: 21},                          # |
+    125: {PUNCT: 27},                          # }
+    126: {PUNCT: 9},                           # ~
 }
 
 # Switch codes between submodes
