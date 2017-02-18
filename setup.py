@@ -32,5 +32,10 @@ setup(
     install_requires=[
         'Pillow>=2.0.0',
         'future'
-    ]
+    ],
+    entry_points={
+        'console_scripts': [
+            'pdf417gen=pdf417gen.console:main',
+        ],
+    }
 )
