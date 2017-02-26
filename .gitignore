@@ -6,3 +6,4 @@ dist/
 tmp/
 env*/
 .pypirc
+/.env
