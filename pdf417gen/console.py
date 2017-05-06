@@ -75,21 +75,25 @@ def do_encode():
         print_err("No input given")
         return
 
-    codes = encode(
-        text,
-        columns=options.columns,
-        security_level=options.security_level,
-        encoding=options.encoding,
-    )
+    try:
+        codes = encode(
+            text,
+            columns=options.columns,
+            security_level=options.security_level,
+            encoding=options.encoding,
+        )
 
-    image = render_image(
-        codes,
-        scale=options.scale,
-        ratio=options.ratio,
-        padding=options.padding,
-        fg_color=options.fg_color,
-        bg_color=options.bg_color,
-    )
+        image = render_image(
+            codes,
+            scale=options.scale,
+            ratio=options.ratio,
+            padding=options.padding,
+            fg_color=options.fg_color,
+            bg_color=options.bg_color,
+        )
+    except Exception as e:
+        print_err(e.message)
+        return
 
     if options.output:
         image.save(options.output)
