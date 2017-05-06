@@ -1,10 +1,8 @@
-import os
 import sys
 
-from datetime import datetime
 from optparse import OptionParser
 
-from pdf417gen import encode, render_image, render_svg
+from pdf417gen import encode, render_image
 
 
 def print_usage():

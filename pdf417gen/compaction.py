@@ -63,6 +63,7 @@ def compact_text_interim(data):
 
     return codes
 
+
 def compact_text(data):
     """Encodes data into code words using the Text compaction mode.
 
