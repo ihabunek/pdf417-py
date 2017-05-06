@@ -10,6 +10,7 @@ CHARACTERS_LOOKUP = {
     13:  {MIXED: 11, PUNCT: 11},               # \r
     32:  {UPPER: 26, LOWER: 26, MIXED: 26},    # SPACE
     33:  {PUNCT: 10},                          # !
+    34:  {PUNCT: 20},                          # "
     35:  {MIXED: 15},                          # #
     36:  {MIXED: 18, PUNCT: 18},               # $
     37:  {MIXED: 21},                          # %
@@ -78,7 +79,7 @@ CHARACTERS_LOOKUP = {
     100: {LOWER: 3},                           # d
     101: {LOWER: 4},                           # e
     102: {LOWER: 5},                           # f
-    103: {LOWER: 6, PUNCT: 20},                # g
+    103: {LOWER: 6},                           # g
     104: {LOWER: 7},                           # h
     105: {LOWER: 8},                           # i
     106: {LOWER: 9},                           # j

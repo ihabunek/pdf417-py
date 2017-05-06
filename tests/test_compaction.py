@@ -26,6 +26,22 @@ def test_text_compactor_interim():
     assert do_compact("f!") == [27, 5, 28, 25, 10]
 
 
+# Bug where the letter g would be encoded as " in the PUNCT submode
+# https://github.com/ihabunek/pdf417-py/issues/8
+def test_text_compactor_interim_error_letter_g():
+    def do_compact(str):
+        return list(compact_text_interim(to_bytes(str)))
+
+    assert do_compact(">g") == [
+        28,  # switch to MIXED
+        25,  # switch to PUNCT
+        2,   # Encode >"
+        29,  # switch to UPPER
+        27,  # switch to LOWER
+        6,   # encode g
+    ]
+
+
 def test_text_compactor():
     def do_compact(str):
         return list(compact_text(to_bytes(str)))
