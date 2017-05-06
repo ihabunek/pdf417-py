@@ -1,6 +1,6 @@
 import sys
 
-from optparse import OptionParser
+from argparse import ArgumentParser
 
 from pdf417gen import encode, render_image
 
@@ -8,67 +8,68 @@ from pdf417gen import encode, render_image
 def print_usage():
     print("Usage: pdf417gen [command]")
     print("")
-    print("https://github.com/ihabunek/pdf417gen")
-    print("")
-    print("commands:")
+    print("Commands:")
     print("  help    show this help message and exit")
     print("  encode  generate a bar code from given input")
+    print("")
+    print("https://github.com/ihabunek/pdf417gen")
 
 
 def print_err(msg):
     sys.stderr.write('\033[91m' + msg + '\033[0m' + "\n")
 
 
-def do_encode():
-    usage = (
-        "pdf417gen encode [options] TEXT\n"
-        "   or: pdf417gen encode [options] < TEXT\n\n"
-        "https://github.com/ihabunek/pdf417gen"
-    )
+def do_encode(args):
+    epilog = "https://github.com/ihabunek/pdf417gen"
 
-    parser = OptionParser(usage=usage)
+    description = "Generate a bar code from given input"
 
-    parser.add_option("-c", "--columns", dest="columns", type="int",
-                      help="The number of columns (default is 6).",
-                      default=6)
+    parser = ArgumentParser(epilog=epilog, description=description)
 
-    parser.add_option("-l", "--security-level", dest="security_level", type="int",
-                      help="Security level (default is 2).",
-                      default=2)
+    parser.add_argument("text", type=str, nargs="?",
+                        help="Text or data to encode. Alternatively data can be piped in.")
 
-    parser.add_option("-e", "--encoding", dest="encoding", type="string",
-                      help="Character encoding used to decode input (default is utf-8).",
-                      default='utf-8')
+    parser.add_argument("-c", "--columns", dest="columns", type=int,
+                        help="The number of columns (default is 6).",
+                        default=6)
 
-    parser.add_option("-s", "--scale", dest="scale", type="int",
-                      help="Module width in pixels (default is 3).",
-                      default=3)
+    parser.add_argument("-l", "--security-level", dest="security_level", type=int,
+                        help="Security level (default is 2).",
+                        default=2)
 
-    parser.add_option("-r", "--ratio", dest="ratio", type="int",
-                      help="Module height to width ratio (default is 3).",
-                      default=3)
+    parser.add_argument("-e", "--encoding", dest="encoding", type=str,
+                        help="Character encoding used to decode input (default is utf-8).",
+                        default='utf-8')
 
-    parser.add_option("-p", "--padding", dest="padding", type="int",
-                      help="Image padding in pixels (default is 20).",
-                      default=20)
+    parser.add_argument("-s", "--scale", dest="scale", type=int,
+                        help="Module width in pixels (default is 3).",
+                        default=3)
 
-    parser.add_option("-f", "--foreground-color", dest="fg_color", type="string",
-                      help="Foreground color in hex (default is '#000000').",
-                      default="#000000")
+    parser.add_argument("-r", "--ratio", dest="ratio", type=int,
+                        help="Module height to width ratio (default is 3).",
+                        default=3)
 
-    parser.add_option("-b", "--background-color", dest="bg_color", type="string",
-                      help="Foreground color in hex (default is '#FFFFFF'.",
-                      default="#FFFFFF")
+    parser.add_argument("-p", "--padding", dest="padding", type=int,
+                        help="Image padding in pixels (default is 20).",
+                        default=20)
 
-    parser.add_option("-o", "--output", dest="output", type="string",
-                      help="Target file (if not given, will just show the barcode).")
+    parser.add_argument("-f", "--foreground-color", dest="fg_color", type=str,
+                        help="Foreground color in hex (default is '#000000').",
+                        default="#000000")
 
-    (options, args) = parser.parse_args()
+    parser.add_argument("-b", "--background-color", dest="bg_color", type=str,
+                        help="Foreground color in hex (default is '#FFFFFF'.",
+                        default="#FFFFFF")
+
+    parser.add_argument("-o", "--output", dest="output", type=str,
+                        help="Target file (if not given, will just show the barcode).")
+
+    args = parser.parse_args(args)
 
     if not sys.stdin.isatty():
         text = sys.stdin.read()
     elif len(args) > 1:
-        text = args[1]
+        text = args.text
     else:
         print_err("No input given")
         return
@@ -76,33 +77,34 @@ def do_encode():
     try:
         codes = encode(
             text,
-            columns=options.columns,
-            security_level=options.security_level,
-            encoding=options.encoding,
+            columns=args.columns,
+            security_level=args.security_level,
+            encoding=args.encoding,
         )
 
         image = render_image(
             codes,
-            scale=options.scale,
-            ratio=options.ratio,
-            padding=options.padding,
-            fg_color=options.fg_color,
-            bg_color=options.bg_color,
+            scale=args.scale,
+            ratio=args.ratio,
+            padding=args.padding,
+            fg_color=args.fg_color,
+            bg_color=args.bg_color,
         )
     except Exception as e:
         print_err(e.message)
         return
 
-    if options.output:
-        image.save(options.output)
+    if args.output:
+        image.save(args.output)
     else:
         image.show()
 
 
 def main():
     command = sys.argv[1] if len(sys.argv) > 1 else None
+    args = sys.argv[2:]
 
     if command == 'encode':
-        do_encode()
+        do_encode(args)
     else:
         print_usage()
