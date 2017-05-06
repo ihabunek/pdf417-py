@@ -7,7 +7,7 @@ with open("README.rst") as readme:
 
 setup(
     name='pdf417gen',
-    version='0.5.0',
+    version='0.6.0',
     description='PDF417 2D barcode generator for Python',
     long_description=long_description,
     author='Ivan Habunek',

@@ -2,6 +2,12 @@
 pdf417gen changelog
 ===================
 
+0.6.0 (2017-05-06)
+------------------
+
+* Add a CLI interface
+* Fix error in CHARACTERS_LOOKUP (#8)
+
 0.5.0 (2017-02-11)
 ------------------
 
