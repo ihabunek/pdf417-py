@@ -27,6 +27,31 @@ Install using pip:
 
     pip install pdf417gen
 
+
+CLI
+---
+
+The ``pdf417gen`` command can be used to generate a barcode from commandline. It
+takes the input either as an argument or from stdin.
+
+.. code-block:: bash
+
+    # Show help
+    pdf417gen encode --help
+
+    # Encode given text and display the barcode
+    pdf417gen encode "Beautiful is better than ugly"
+
+    # Encode given text and save barcode to a file (extension determines format)
+    pdf417gen encode -o barcode.png "Explicit is better than implicit"
+
+    # Input from a file
+    pdf417gen encode < input.txt
+
+    # Piped input
+    python -c "import this" | pdf417gen encode
+
+
 Usage
 -----
 
