@@ -91,7 +91,7 @@ def do_encode(args):
             bg_color=args.bg_color,
         )
     except Exception as e:
-        print_err(e.message)
+        print_err(str(e))
         return
 
     if args.output:
