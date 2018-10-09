@@ -68,7 +68,7 @@ def do_encode(args):
 
     if not sys.stdin.isatty():
         text = sys.stdin.read()
-    elif len(args) > 1:
+    elif len(vars(args)) > 1:
         text = args.text
     else:
         print_err("No input given")
