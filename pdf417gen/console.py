@@ -19,12 +19,9 @@ def print_err(msg):
     sys.stderr.write('\033[91m' + msg + '\033[0m' + "\n")
 
 
-def do_encode(args):
-    epilog = "https://github.com/ihabunek/pdf417gen"
-
-    description = "Generate a bar code from given input"
-
-    parser = ArgumentParser(epilog=epilog, description=description)
+def get_parser():
+    parser = ArgumentParser(epilog="https://github.com/ihabunek/pdf417gen",
+                            description="Generate a bar code from given input")
 
     parser.add_argument("text", type=str, nargs="?",
                         help="Text or data to encode. Alternatively data can be piped in.")
@@ -64,13 +61,18 @@ def do_encode(args):
     parser.add_argument("-o", "--output", dest="output", type=str,
                         help="Target file (if not given, will just show the barcode).")
 
-    args = parser.parse_args(args)
+    return parser
 
-    if not sys.stdin.isatty():
+
+def do_encode(args):
+    args = get_parser().parse_args(args)
+    text = args.text
+
+    # If no text is given, check stdin
+    if not text:
         text = sys.stdin.read()
-    elif len(vars(args)) > 1:
-        text = args.text
-    else:
+
+    if not text:
         print_err("No input given")
         return
 
