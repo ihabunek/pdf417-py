@@ -14,4 +14,4 @@ install:
   - pip install "pillow<4.0.0"
   - pip install -e .
 
-script: py.test
+script: pytest --verbose
