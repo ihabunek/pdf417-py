@@ -1,5 +1,13 @@
 default : clean dist
 
+phony: test
+
+test:
+	pytest
+
+htmlcov:
+	pytest --cov=pdf417gen --cov-report=html
+
 dist :
 	@echo "\nMaking source"
 	@echo "-------------"
@@ -12,7 +20,7 @@ dist :
 	@echo "\nDone."
 
 clean :
-	rm -rf build dist *.egg-info MANIFEST
+	rm -rf build dist *.egg-info MANIFEST htmlcov
 
 publish :
 	twine upload dist/*
