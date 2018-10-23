@@ -97,6 +97,7 @@ Supports strings (unicode in py2) and byte arrays (str in py2):
     encode(u"love 💔", encoding="utf-8")
 
 
+
 Encoding data
 -------------
 
@@ -104,7 +105,7 @@ The first step is to encode your data to a list of code words.
 
 .. code-block:: python
 
-    encode(data, columns=6, security_level=2˙)
+    encode(data, columns=6, security_level=2)
 
 Columns
 ~~~~~~~
@@ -138,6 +139,17 @@ produces 512. The default security level is 2.
     image.show()
 
 .. image:: https://raw.githubusercontent.com/ihabunek/pdf417-py/master/images/3_security_level.jpg
+
+Auto Numeric Compaction Mode
+---------------------------
+
+This mode can pack almost 3 digits (2.93) info a symbol character.
+The words with length less 13 symbols will be invoked as Text
+
+.. code-block:: python
+
+    codes = encode(text, numeric_compaction=True)
+
 
 Render image
 ------------
@@ -197,3 +209,4 @@ The background is left transparent.
 .. _golang-pdf417: https://github.com/ruudk/golang-pdf417
 .. _ElementTree: https://docs.python.org/3.5/library/xml.etree.elementtree.html#elementtree-objects
 .. _Image: https://pillow.readthedocs.io/en/3.2.x/reference/Image.html
+.. spe
