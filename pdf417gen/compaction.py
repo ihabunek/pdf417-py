@@ -123,7 +123,7 @@ def compact_bytes(data):
 
 # -- Bringing it all together --------------------------------------------------
 
-def compact(data):
+def compact(data, numeric_compaction=False):
     """Encodes given data into an array of PDF417 code words."""
 
     def compact_chunks(chunks):
@@ -169,7 +169,34 @@ def compact(data):
         if chunk:
             yield chunk, function
 
+    def replace_short_numbers(chunks):
+        prev_chunk = None
+        prev_fn = None
+
+        for chunk, fn in iter(chunks):
+            if prev_chunk is None:
+                prev_chunk, prev_fn = chunk, fn
+                continue
+
+            if len(chunk) < 13 and fn is compact_numbers:
+                if prev_fn is compact_text:
+                    yield prev_chunk + chunk, prev_fn
+                    prev_chunk, prev_fn = None, None
+                else:
+                    yield prev_chunk, prev_fn
+                    prev_chunk, prev_fn = chunk, compact_text
+            else:
+                yield prev_chunk, prev_fn
+                prev_chunk, prev_fn = chunk, fn
+
+        if prev_chunk:
+            yield prev_chunk, prev_fn
+
+
     chunks = split_to_chunks(data)
+    if numeric_compaction:
+        chunks = replace_short_numbers(chunks)
+
     return compact_chunks(chunks)
 
 

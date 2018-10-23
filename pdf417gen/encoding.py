@@ -23,7 +23,7 @@ MAX_ROWS = 90
 DEFAULT_ENCODING = 'utf-8'
 
 
-def encode(data, columns=6, security_level=2, encoding=DEFAULT_ENCODING):
+def encode(data, columns=6, security_level=2, encoding=DEFAULT_ENCODING, numeric_compaction=False):
     if columns < 1 or columns > 30:
         raise ValueError("'columns' must be between 1 and 30. Given: %r" % columns)
 
@@ -36,7 +36,7 @@ def encode(data, columns=6, security_level=2, encoding=DEFAULT_ENCODING):
     data_bytes = to_bytes(data, encoding)
 
     # Convert data to code words and split into rows
-    code_words = encode_high(data_bytes, num_cols, security_level)
+    code_words = encode_high(data_bytes, num_cols, security_level, numeric_compaction)
     rows = list(chunks(code_words, num_cols))
 
     return list(encode_rows(rows, num_cols, security_level))
@@ -63,7 +63,7 @@ def encode_row(row_no, row_words, left, right):
     return [START_CHARACTER, left_low] + row_words_low + [right_low, STOP_CHARACTER]
 
 
-def encode_high(data, columns, security_level):
+def encode_high(data, columns, security_level, numeric_compaction=False):
     """Converts the input string to high level code words.
 
     Including the length indicator and the error correction words, but without

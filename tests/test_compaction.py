@@ -1,3 +1,5 @@
+import pytest
+
 from pdf417gen.encoding import to_bytes
 from pdf417gen.compaction import (
     compact, compact_bytes, compact_numbers, compact_text, compact_text_interim)
@@ -70,3 +72,40 @@ def test_compact():
 
     # Alternate bytes switch code when number of bytes is divisble by 6
     assert do_compact(b"\x0B\x0B\x0B\x0B\x0B\x0B") == [924, 18, 455, 694, 754, 291]
+
+
+VARIANTS = (
+    (
+        '7789777004000951 388044',
+        [902, 30, 114, 386, 259, 234, 351, 900, 808, 98, 240, 124],
+    ),
+    (
+        '12345678901234 aaaaa 1111',
+        [902, 171, 209, 269, 12, 434, 900, 807, 0, 0, 26, 841, 31, 59],
+    ),
+    (
+        "hello12345678901234world",
+        [817, 131, 344, 902, 171, 209, 269, 12, 434, 900, 832, 437, 333],
+    ),
+    (
+        "hello123456789012world",
+        [817, 131, 344, 841, 63, 125, 187, 249, 1, 89, 900, 832, 437, 333],
+    ),
+    (
+        "12345678901234 109876543210123 123 123 123",
+        [902, 171, 209, 269, 12, 434, 900, 809, 902, 1, 791, 564, 354, 522, 323,
+         900, 808, 32, 119, 900, 808, 32, 119, 900, 808, 32, 119]
+    ),
+    (
+        "\x0B3333\x0B3333",
+        [901, 11, 900, 843, 93, 119, 901, 11, 900, 843, 93, 119]
+    ),
+)
+
+
+@pytest.mark.parametrize("data,expected", VARIANTS)
+def test_numeric_compaction(data, expected):
+    def do_compact(str):
+        return list(compact(to_bytes(str), numeric_compaction=True))
+
+    assert do_compact(data) == expected
