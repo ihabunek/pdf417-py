@@ -71,7 +71,7 @@ def encode_high(data, columns, security_level, numeric_compaction=False):
     """
 
     # Encode data to code words
-    data_words = list(compact(data))
+    data_words = list(compact(data, numeric_compaction))
     data_count = len(data_words)
 
     # Get the padding to align data to column count
