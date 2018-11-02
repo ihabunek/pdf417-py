@@ -55,7 +55,7 @@ def get_parser():
                         default="#000000")
 
     parser.add_argument("-b", "--background-color", dest="bg_color", type=str,
-                        help="Foreground color in hex (default is '#FFFFFF'.",
+                        help="Foreground color in hex (default is '#FFFFFF').",
                         default="#FFFFFF")
 
     parser.add_argument("-o", "--output", dest="output", type=str,
