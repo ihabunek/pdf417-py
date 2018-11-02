@@ -188,7 +188,8 @@ The background is left transparent.
     svg = render_svg(codes, scale=5, ratio=2, color="Seaweed")
     svg.write('barcode.svg')
 
-## See also
+See also
+--------
 
 * pdf417-php_ - a PHP implementation
 * golang-pdf417_ - a Go implementation
