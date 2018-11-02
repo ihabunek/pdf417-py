@@ -1,6 +1,6 @@
+from pdf417gen.compaction import compact, compact_bytes, compact_numbers, compact_text
+from pdf417gen.compaction.text import compact_text_interim
 from pdf417gen.encoding import to_bytes
-from pdf417gen.compaction import (
-    compact, compact_bytes, compact_numbers, compact_text, compact_text_interim)
 
 
 def test_byte_compactor():
