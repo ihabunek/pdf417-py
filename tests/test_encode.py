@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import pytest
+
 from pdf417gen.encoding import encode, encode_high, to_bytes
 
 TEST_DATA = '\n'.join([
@@ -85,3 +87,25 @@ def test_encode_unicode():
 
     assert encode(uc) == expected
     assert encode(by) == expected
+
+
+def test_max_barcode_size():
+    # Borderline
+    encode("x" * 1853, columns=16, security_level=6)
+
+    print("*"*80)
+    # Data too long
+    with pytest.raises(ValueError) as ex:
+        encode("x" * 1854, columns=16, security_level=6)
+    assert str(ex.value) == "Data too long. Generated bar code has length descriptor of 944. Maximum is 928."
+    print("*"*80)
+
+    # Too few rows
+    with pytest.raises(ValueError) as ex:
+        encode("x", columns=16, security_level=1)
+    assert str(ex.value) == "Generated bar code has 1 rows. Minimum is 3 rows. Try decreasing column count."
+
+    # Too many rows
+    with pytest.raises(ValueError) as ex:
+        encode("x" * 1853, columns=8, security_level=6)
+    assert str(ex.value) == "Generated bar code has 132 rows. Maximum is 90 rows. Try increasing column count."

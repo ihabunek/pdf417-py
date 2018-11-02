@@ -2,6 +2,11 @@
 pdf417gen changelog
 ===================
 
+0.7.0 (TBA)
+-----------
+
+* Fix max allowed code words calculation (#9)
+
 0.6.0 (2017-05-06)
 ------------------
 

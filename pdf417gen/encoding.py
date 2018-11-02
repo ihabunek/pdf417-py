@@ -79,14 +79,19 @@ def encode_high(data, columns, security_level):
     padding_words = get_padding(data_count, ec_count, columns)
     padding_count = len(padding_words)
 
-    # Check the generated bar code's size is within specification parameters
-    validate_barcode_size(data_count, ec_count, padding_count, columns)
+    # Length descriptor includes the data CWs, padding CWs and the descriptor
+    # itself but not the error correction CWs
+    length_descriptor = data_count + padding_count + 1
 
-    # Length includes the data CWs, padding CWs and the specifier itself
-    length = data_count + padding_count + 1
+    # Total number of code words and number of rows
+    cw_count = data_count + ec_count + padding_count + 1
+    row_count = math.ceil(cw_count / columns)
+
+    # Check the generated bar code's size is within specification parameters
+    validate_barcode_size(length_descriptor, row_count)
 
     # Join encoded data with the length specifier and padding
-    extendend_words = [length] + data_words + padding_words
+    extendend_words = [length_descriptor] + data_words + padding_words
 
     # Calculate error correction words
     ec_words = compute_error_correction_code_words(extendend_words, security_level)
@@ -94,23 +99,21 @@ def encode_high(data, columns, security_level):
     return extendend_words + ec_words
 
 
-def validate_barcode_size(data_count, ec_count, padding_count, columns):
-    cw_count = data_count + ec_count + padding_count + 1
-    if cw_count > MAX_CODE_WORDS:
+def validate_barcode_size(length_descriptor, row_count):
+    if length_descriptor > MAX_CODE_WORDS:
         raise ValueError(
-            "Data too long. Generated bar code contains %d code words. "
-            "Maximum is %d. Try decreasing security level." % (cw_count, MAX_CODE_WORDS))
+            "Data too long. Generated bar code has length descriptor of %d. "
+            "Maximum is %d." % (length_descriptor, MAX_CODE_WORDS))
 
-    row_count = math.ceil(cw_count / columns)
     if row_count < MIN_ROWS:
         raise ValueError(
-            "Data too short. Generated bar code has %d rows. "
-            "Minimum is %d rows. Try decreasing column count." % (row_count, MIN_ROWS))
+            "Generated bar code has %d rows. Minimum is %d rows. "
+            "Try decreasing column count." % (row_count, MIN_ROWS))
 
     if row_count > MAX_ROWS:
         raise ValueError(
-            "Data too long. Generated bar code has %d rows. "
-            "Maximum is %d rows. Try increasing column count. " % (row_count, MAX_ROWS))
+            "Generated bar code has %d rows. Maximum is %d rows. "
+            "Try increasing column count." % (row_count, MAX_ROWS))
 
 
 def get_left_code_word(row_no, num_rows, num_cols, security_level):
