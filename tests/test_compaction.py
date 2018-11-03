@@ -1,9 +1,10 @@
+# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
 import pytest
 
 from pdf417gen.compaction import compact, compact_bytes, compact_numbers, compact_text
-from pdf417gen.compaction import _split_to_chunks
+from pdf417gen.compaction import optimizations, _split_to_chunks, Chunk
 from pdf417gen.compaction.text import compact_text_interim
 from pdf417gen.encoding import to_bytes
 
@@ -65,10 +66,16 @@ def test_compact():
         return list(compact(to_bytes(str)))
 
     # When starting with text, the first code word does not need to be the switch
-    assert do_compact("ABC123") == [1, 89, 902, 1, 223]
+    # Use 13 digites to avoid optimization which keeps it in text mode
+    assert do_compact("ABC1234567890123") == [
+        1, 89, 902, 17, 110, 836, 811, 223
+    ]
 
     # When starting with numbers, we do need to switch
-    assert do_compact("123ABC") == [902, 1, 223, 900, 1, 89]
+    assert do_compact("1234567890123ABC") == [
+        902, 17, 110, 836, 811, 223,
+        900, 1, 89
+    ]
 
     # Also with bytes
     assert do_compact(b"\x0B") == [901, 11]
@@ -87,8 +94,58 @@ def test_compact():
 ])
 def test_split_to_chunks(data, expected):
     def chars(string):
-        return [i for i in string.encode('utf-8')]
+        return [i for i in to_bytes(string)]
 
-    data = data.encode('utf-8')
+    data = to_bytes(data)
     expected = [(chars(text), fn) for text, fn in expected]
     assert list(_split_to_chunks(data)) == expected
+
+
+@pytest.mark.parametrize("data,expected", [
+    # Don't switch to text mode for chunks shorter than 13 numeric chars
+    # if bordering text chunk
+    ('foo1234567890bar', [
+        ('foo1234567890bar', compact_text),
+    ]),
+    ('1234567890bar', [
+        ('1234567890bar', compact_text),
+    ]),
+    ('foo1234567890', [
+        ('foo1234567890', compact_text),
+    ]),
+    ('foo1234567890💔', [
+        ('foo1234567890', compact_text),
+        ('💔', compact_bytes),
+    ]),
+    ('💔1234567890foo', [
+        ('💔', compact_bytes),
+        ('1234567890foo', compact_text),
+    ]),
+
+    # Switch for 13+ chars or when not bordering text chunk
+    ('foo1234567890123bar', [
+        ('foo', compact_text),
+        ('1234567890123', compact_numbers),
+        ('bar', compact_text),
+    ]),
+    ('1234567890', [
+        ('1234567890', compact_numbers),
+    ]),
+    ('💔1234567890💔', [
+        ('💔', compact_bytes),
+        ('1234567890', compact_numbers),
+        ('💔', compact_bytes),
+    ]),
+])
+def test_optimizations(data, expected):
+    def chars(string):
+        return [i for i in to_bytes(string)]
+
+    data = to_bytes(data)
+    expected = [Chunk(chars(text), fn) for text, fn in expected]
+
+    actual = _split_to_chunks(data)
+    actual = optimizations.replace_short_numeric_chunks(actual)
+    actual = optimizations.merge_chunks_with_same_compact_fn(actual)
+
+    assert list(actual) == expected

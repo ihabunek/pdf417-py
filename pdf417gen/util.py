@@ -1,6 +1,7 @@
 from __future__ import division
 
-from builtins import bytes, str
+from builtins import bytes, str, zip
+from itertools import tee, islice, chain
 
 
 def from_base(digits, base):
@@ -35,3 +36,13 @@ def to_bytes(input, encoding='utf-8'):
         return bytes(input, encoding)
 
     raise ValueError("Invalid input, expected string or bytes")
+
+
+def iterate_prev_next(iterable):
+    """
+    Creates an iterator which provides previous, current and next item.
+    """
+    prevs, items, nexts = tee(iterable, 3)
+    prevs = chain([None], prevs)
+    nexts = chain(islice(nexts, 1, None), [None])
+    return zip(prevs, items, nexts)
