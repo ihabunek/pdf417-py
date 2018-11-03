@@ -1,3 +1,4 @@
+from collections import namedtuple
 from itertools import chain, groupby
 
 from pdf417gen.compaction.byte import compact_bytes
@@ -14,6 +15,10 @@ BYTE_SWITCH = 913
 NUMERIC_LATCH = 902
 
 
+# A chunk of barcode data with accompanying compaction function
+Chunk = namedtuple("Chunk", ["data", "compact_fn"])
+
+
 def compact(data):
     """Encodes given data into an array of PDF417 code words."""
     chunks = _split_to_chunks(data)
@@ -22,20 +27,20 @@ def compact(data):
 
 def _compact_chunks(chunks):
     compacted_chunks = (
-        _compact_chunk(ordinal, *args) for ordinal, args in enumerate(chunks))
+        _compact_chunk(ordinal, chunk) for ordinal, chunk in enumerate(chunks))
 
     return chain(*compacted_chunks)
 
 
-def _compact_chunk(ordinal, chunk, compact_fn):
+def _compact_chunk(ordinal, chunk):
     code_words = []
 
     # Add the switch code if required
-    add_switch_code = ordinal > 0 or compact_fn != compact_text
+    add_switch_code = ordinal > 0 or chunk.compact_fn != compact_text
     if add_switch_code:
-        code_words.append(get_switch_code(compact_fn, chunk))
+        code_words.append(get_switch_code(chunk))
 
-    code_words.extend(compact_fn(chunk))
+    code_words.extend(chunk.compact_fn(chunk.data))
 
     return code_words
 
@@ -46,7 +51,7 @@ def _split_to_chunks(data):
     function.
     """
     for fn, chunk in groupby(data, key=get_optimal_compactor_fn):
-        yield list(chunk), fn
+        yield Chunk(list(chunk), fn)
 
 
 def get_optimal_compactor_fn(char):
@@ -59,14 +64,14 @@ def get_optimal_compactor_fn(char):
     return compact_bytes
 
 
-def get_switch_code(compact_fn, data):
-    if compact_fn == compact_text:
+def get_switch_code(chunk):
+    if chunk.compact_fn == compact_text:
         return TEXT_LATCH
 
-    if compact_fn == compact_bytes:
-        return BYTE_LATCH_ALT if len(data) % 6 == 0 else BYTE_LATCH
+    if chunk.compact_fn == compact_bytes:
+        return BYTE_LATCH_ALT if len(chunk.data) % 6 == 0 else BYTE_LATCH
 
-    if compact_fn == compact_numbers:
+    if chunk.compact_fn == compact_numbers:
         return NUMERIC_LATCH
 
     assert False, "Nonexistant compaction function"
