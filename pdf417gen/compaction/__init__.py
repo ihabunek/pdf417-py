@@ -13,7 +13,8 @@ def compact(data):
 
 
 def _compact_chunks(chunks):
-    compacted_chunks = [_compact_chunk(ordinal, *args) for ordinal, args in enumerate(chunks)]
+    compacted_chunks = (
+        _compact_chunk(ordinal, *args) for ordinal, args in enumerate(chunks))
 
     return chain(*compacted_chunks)
 
