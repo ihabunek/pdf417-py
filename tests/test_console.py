@@ -1,7 +1,4 @@
-import pytest
-
 from mock import patch
-
 from pdf417gen import console
 
 

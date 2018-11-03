@@ -24,7 +24,7 @@ def test_render_svg():
     description = "hi there"
 
     tree = render_svg(codes, scale=scale, ratio=ratio, description=description)
-    assert isinstance (tree, ElementTree)
+    assert isinstance(tree, ElementTree)
     assert tree.findtext("description") == description
 
     # Test expected size
@@ -33,7 +33,7 @@ def test_render_svg():
     root = tree.getroot()
 
     assert root.get("width") == str(width * scale)
-    assert root.get("height") == str(height * scale  * ratio)
+    assert root.get("height") == str(height * scale * ratio)
     assert root.get("version") == "1.1"
     assert root.get("xmlns") == "http://www.w3.org/2000/svg"
 
@@ -48,7 +48,7 @@ def test_render_image():
     width, height = barcode_size(codes)
 
     image = render_image(codes)
-    assert isinstance (image, Image)
+    assert isinstance(image, Image)
 
     image = render_image(codes, scale=1, ratio=1, padding=0)
     assert image.size == (width, height)
@@ -63,13 +63,14 @@ def test_render_image():
     assert image.size == (2 * width + 40, 4 * height + 40)
 
     # Check actual pixels
-    fg_color="LemonChiffon"
-    bg_color="#aabbcc"
+    fg_color = "LemonChiffon"
+    bg_color = "#aabbcc"
 
     fg_parsed = (255, 250, 205)
     bg_parsed = (170, 187, 204)
 
-    image = render_image(codes, scale=1, ratio=1, padding=0, fg_color="LemonChiffon", bg_color="#aabbcc")
+    image = render_image(codes, scale=1, ratio=1, padding=0,
+                         fg_color=fg_color, bg_color=bg_color)
     px = image.load()
 
     for column, row, visible in modules(codes):
