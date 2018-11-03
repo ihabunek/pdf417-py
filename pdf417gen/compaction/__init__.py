@@ -6,6 +6,14 @@ from pdf417gen.compaction.text import compact_text
 from pdf417gen.data import CHARACTERS_LOOKUP
 
 
+# Codes for switching between compacting modes
+TEXT_LATCH = 900
+BYTE_LATCH = 901
+BYTE_LATCH_ALT = 924
+BYTE_SWITCH = 913
+NUMERIC_LATCH = 902
+
+
 def compact(data):
     """Encodes given data into an array of PDF417 code words."""
     chunks = _split_to_chunks(data)
@@ -52,18 +60,13 @@ def get_optimal_compactor_fn(char):
 
 
 def get_switch_code(compact_fn, data):
-    TEXT = 900
-    BYTES = 901
-    BYTES_ALT = 924
-    NUMBERS = 902
-
     if compact_fn == compact_text:
-        return TEXT
+        return TEXT_LATCH
 
     if compact_fn == compact_bytes:
-        return BYTES_ALT if len(data) % 6 == 0 else BYTES
+        return BYTE_LATCH_ALT if len(data) % 6 == 0 else BYTE_LATCH
 
     if compact_fn == compact_numbers:
-        return NUMBERS
+        return NUMERIC_LATCH
 
     assert False, "Nonexistant compaction function"
