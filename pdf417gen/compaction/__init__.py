@@ -1,6 +1,7 @@
 from collections import namedtuple
 from itertools import chain, groupby
 
+from pdf417gen.compaction import optimizations
 from pdf417gen.compaction.byte import compact_bytes
 from pdf417gen.compaction.numeric import compact_numbers
 from pdf417gen.compaction.text import compact_text
@@ -22,6 +23,8 @@ Chunk = namedtuple("Chunk", ["data", "compact_fn"])
 def compact(data):
     """Encodes given data into an array of PDF417 code words."""
     chunks = _split_to_chunks(data)
+    chunks = optimizations.replace_short_numeric_chunks(chunks)
+    chunks = optimizations.merge_chunks_with_same_compact_fn(chunks)
     return _compact_chunks(chunks)
 
 
