@@ -1,4 +1,4 @@
-from itertools import chain
+from itertools import chain, groupby
 
 from pdf417gen.compaction.byte import compact_bytes
 from pdf417gen.compaction.numeric import compact_numbers
@@ -32,30 +32,12 @@ def _compact_chunk(ordinal, chunk, compact_fn):
 
 
 def _split_to_chunks(data):
-    """Splits a string into chunks which can be encoded with the same encoder.
-
-    Implemented as a generator which yields chunks and the appropriate encoder.
-
-    TODO: Currently always switches to the best encoder, even if it's just
-    for one character, consider a better algorithm.
     """
-
-    # Default compaction mode is Text (does not require an initial switch code)
-    function = compact_text
-    chunk = []
-
-    for char in data:
-        new_function = get_optimal_compactor_fn(char)
-        if function != new_function:
-            if chunk:
-                yield chunk, function
-
-            chunk = []
-            function = new_function
-        chunk.append(char)
-
-    if chunk:
-        yield chunk, function
+    Splits a string into chunks which can be compacted with the same compacting
+    function.
+    """
+    for fn, chunk in groupby(data, key=get_optimal_compactor_fn):
+        yield list(chunk), fn
 
 
 def get_optimal_compactor_fn(char):

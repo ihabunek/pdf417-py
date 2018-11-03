@@ -1,4 +1,9 @@
+from __future__ import unicode_literals
+
+import pytest
+
 from pdf417gen.compaction import compact, compact_bytes, compact_numbers, compact_text
+from pdf417gen.compaction import _split_to_chunks
 from pdf417gen.compaction.text import compact_text_interim
 from pdf417gen.encoding import to_bytes
 
@@ -70,3 +75,20 @@ def test_compact():
 
     # Alternate bytes switch code when number of bytes is divisble by 6
     assert do_compact(b"\x0B\x0B\x0B\x0B\x0B\x0B") == [924, 18, 455, 694, 754, 291]
+
+
+@pytest.mark.parametrize("data,expected", [
+    ('aabb1122foobar💔', [
+        ('aabb', compact_text),
+        ('1122', compact_numbers),
+        ('foobar', compact_text),
+        ('💔', compact_bytes),
+    ]),
+])
+def test_split_to_chunks(data, expected):
+    def chars(string):
+        return [i for i in string.encode('utf-8')]
+
+    data = data.encode('utf-8')
+    expected = [(chars(text), fn) for text, fn in expected]
+    assert list(_split_to_chunks(data)) == expected
