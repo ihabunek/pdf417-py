@@ -28,7 +28,10 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
-    packages=['pdf417gen'],
+    packages=[
+        'pdf417gen',
+        'pdf417gen.compaction'
+    ],
     install_requires=[
         'Pillow>=2.0.0',
         'future'
