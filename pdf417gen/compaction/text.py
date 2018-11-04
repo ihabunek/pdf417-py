@@ -56,7 +56,7 @@ PADDING_INTERIM_CODE = 29
 
 def _compact_chunk(chunk):
     if len(chunk) == 1:
-        chunk.append(PADDING_INTERIM_CODE)
+        chunk = (chunk[0], PADDING_INTERIM_CODE)
 
     return 30 * chunk[0] + chunk[1]
 

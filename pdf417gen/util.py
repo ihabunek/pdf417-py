@@ -22,10 +22,14 @@ def switch_base(digits, source_base, target_base):
     return to_base(from_base(digits, source_base), target_base)
 
 
-def chunks(data, size):
-    """Generator which chunks data into 6 bytes batches"""
-    for i in range(0, len(data), size):
-        yield data[i:i+size]
+def chunks(iterable, size):
+    """Generator which chunks data into chunks of given size."""
+    it = iter(iterable)
+    while True:
+        chunk = tuple(islice(it, size))
+        if not chunk:
+            return
+        yield chunk
 
 
 def to_bytes(input, encoding='utf-8'):
