@@ -5,15 +5,13 @@ Can encode: ASCII 0 to 255
 Rate compaction: 1.2 byte per code word
 """
 
-
 from itertools import chain
 from pdf417gen.util import switch_base, chunks
 
 
 def compact_bytes(data):
     """Encodes data into code words using the Byte compaction mode."""
-
-    compacted_chunks = [_compact_chunk(chunk) for chunk in chunks(data, size=6)]
+    compacted_chunks = (_compact_chunk(chunk) for chunk in chunks(data, size=6))
     return chain(*compacted_chunks)
 
 

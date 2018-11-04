@@ -64,4 +64,4 @@ def _compact_chunk(chunk):
 def compact_text(data):
     """Encodes data into code words using the Text compaction mode."""
     interim_codes = compact_text_interim(data)
-    return [_compact_chunk(chunk) for chunk in chunks(interim_codes, 2)]
+    return (_compact_chunk(chunk) for chunk in chunks(interim_codes, 2))
