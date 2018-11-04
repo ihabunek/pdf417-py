@@ -7,6 +7,7 @@ from pdf417gen.compaction import compact, compact_bytes, compact_numbers, compac
 from pdf417gen.compaction import optimizations, _split_to_chunks, Chunk
 from pdf417gen.compaction.text import compact_text_interim
 from pdf417gen.encoding import to_bytes
+from pdf417gen.data import SWITCH_CODE_LOOKUP
 
 
 def test_byte_compactor():
@@ -21,15 +22,34 @@ def test_text_compactor_interim():
     def do_compact(str):
         return list(compact_text_interim(to_bytes(str)))
 
+    # Latch codes for single-code transitions
+    lm = SWITCH_CODE_LOOKUP['LOWER']['MIXED']
+    ul = SWITCH_CODE_LOOKUP['UPPER']['LOWER']
+    um = SWITCH_CODE_LOOKUP['UPPER']['MIXED']
+    ml = SWITCH_CODE_LOOKUP['MIXED']['LOWER']
+    mu = SWITCH_CODE_LOOKUP['MIXED']['UPPER']
+    mp = SWITCH_CODE_LOOKUP['MIXED']['PUNCT']
+    pu = SWITCH_CODE_LOOKUP['PUNCT']['UPPER']
+
     # Upper transitions
-    assert do_compact("Ff") == [5, 27, 5]
-    assert do_compact("F#") == [5, 28, 15]
-    assert do_compact("F!") == [5, 28, 25, 10]
+    assert do_compact("Ff") == [5, ul, 5]
+    assert do_compact("F#") == [5, um, 15]
+    assert do_compact("F!") == [5, um, mp, 10]
 
     # Lower transitions
-    assert do_compact("fF") == [27, 5, 28, 28, 5]
-    assert do_compact("f#") == [27, 5, 28, 15]
-    assert do_compact("f!") == [27, 5, 28, 25, 10]
+    assert do_compact("fF") == [ul, 5, lm, mu, 5]
+    assert do_compact("f#") == [ul, 5, lm, 15]
+    assert do_compact("f!") == [ul, 5, lm, mp, 10]
+
+    # Mixed transitions
+    assert do_compact("#f") == [um, 15, ml, 5]
+    assert do_compact("#F") == [um, 15, mu, 5]
+    assert do_compact("#!") == [um, 15, mp, 10]
+
+    # Punct transitions
+    assert do_compact("!f") == [um, mp, 10, pu, ul, 5]
+    assert do_compact("!F") == [um, mp, 10, pu, 5]
+    assert do_compact("!#") == [um, mp, 10, pu, um, 15]
 
 
 # Bug where the letter g would be encoded as " in the PUNCT submode
