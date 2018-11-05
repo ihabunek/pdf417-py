@@ -2,12 +2,14 @@
 pdf417gen changelog
 ===================
 
-0.7.0 (TBA)
------------
+0.7.0 (2018-11-05)
+------------------
 
 * Fix max allowed code words calculation (#9)
 * Optimization: don't switch to numeric mode for fewer than 13 digits
   (#12, thanks to @Pavkazzz for the original implementation)
+
+These changes allow significantly more data to be encoded.
 
 0.6.0 (2017-05-06)
 ------------------
