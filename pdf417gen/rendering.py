@@ -1,5 +1,11 @@
-from PIL import Image, ImageColor, ImageOps
 from xml.etree.ElementTree import ElementTree, Element, SubElement
+
+try:
+    from PIL import Image, ImageColor, ImageOps
+except ImportError:
+    Image = None
+    ImageColor = None
+    ImageOps = None
 
 
 def barcode_size(codes):
@@ -29,6 +35,7 @@ def modules(codes):
 
 
 def parse_color(color):
+    assert ImageColor, "Module PIL is not installed"
     return ImageColor.getrgb(color)
 
 
@@ -36,7 +43,11 @@ def rgb_to_hex(color):
     return '#{0:02x}{1:02x}{2:02x}'.format(*color)
 
 
-def render_image(codes, scale=3, ratio=3, padding=20, fg_color="#000", bg_color="#FFF"):
+def render_image(codes, scale=3, ratio=3, padding=20, fg_color="#000",
+                 bg_color="#FFF"):
+
+    assert Image and ImageOps, "Module PIL is not installed"
+
     width, height = barcode_size(codes)
 
     # Translate hex code colors to RGB tuples
@@ -58,32 +69,45 @@ def render_image(codes, scale=3, ratio=3, padding=20, fg_color="#000", bg_color=
     return image
 
 
-def render_svg(codes, scale=3, ratio=3, color="#000", description=None):
+def render_svg(codes, scale=3, ratio=3, padding=20, fg_color="#000", bg_color=None, description=None):
     # Barcode size in modules
     width, height = barcode_size(codes)
+    padding = max(padding,0)    #disallow negative padding
 
     # Size of each module
     scale_x = scale
     scale_y = scale * ratio
 
-    color = rgb_to_hex(parse_color(color))
+    fg_color = rgb_to_hex(parse_color(fg_color))
 
-    root = Element('svg', {
-        "version": "1.1",
-        "xmlns": "http://www.w3.org/2000/svg",
-        "width": str(width * scale_x),
-        "height": str(height * scale_y),
-    })
+    w = str(width * scale_x+2*padding)
+    h = str(height * scale_y+2*padding)
+    root = Element('svg', dict(
+        version = "1.1",
+        xmlns = "http://www.w3.org/2000/svg",
+        width = w,
+        height = h,
+        ))
 
     if description:
         description_element = SubElement(root, 'description')
         description_element.text = description
 
-    group = SubElement(root, 'g', {
-        "id": "barcode",
-        "fill": color,
-        "stroke": "none"
-    })
+    if bg_color is not None:
+        SubElement(root, 'rect', dict(
+            x = "0",
+            y = "0",
+            width = w,
+            height = h,
+            fill = bg_color,
+            ))
+
+    group = SubElement(root, 'g', dict(
+        id = "barcode",
+        fill = fg_color,
+        stroke = "none",
+        transform="translate(%s,%s)" % (padding,padding),
+        ))
 
     # Generate the barcode modules
     for col_id, row_id, visible in modules(codes):
@@ -91,11 +115,11 @@ def render_svg(codes, scale=3, ratio=3, color="#000", description=None):
         y = row_id * scale_y
 
         if visible:
-            SubElement(group, 'rect', {
-                "x": str(x),
-                "y": str(y),
-                "width": str(scale_x),
-                "height": str(scale_y),
-            })
+            SubElement(group, 'rect', dict(
+                x = str(x),
+                y = str(y),
+                width = str(scale_x),
+                height = str(scale_y),
+                ))
 
     return ElementTree(element=root)

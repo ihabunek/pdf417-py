@@ -1,8 +1,8 @@
-import sys
+import sys, os
 
 from argparse import ArgumentParser
 
-from pdf417gen import encode, render_image
+from pdf417gen import encode, render_image, render_svg
 
 
 def print_usage():
@@ -61,6 +61,10 @@ def get_parser():
     parser.add_argument("-o", "--output", dest="output", type=str,
                         help="Target file (if not given, will just show the barcode).")
 
+    parser.add_argument("-k", "--kind", type=str, default='image',
+                       help=" what kind of image to produce eg image|svg "
+                            "(default is image).")
+
     return parser
 
 
@@ -84,22 +88,50 @@ def do_encode(args):
             encoding=args.encoding,
         )
 
-        image = render_image(
-            codes,
-            scale=args.scale,
-            ratio=args.ratio,
-            padding=args.padding,
-            fg_color=args.fg_color,
-            bg_color=args.bg_color,
-        )
+        if args.kind=='svg':
+            xml = render_svg(
+                codes,
+                scale=args.scale,
+                ratio=args.ratio,
+                padding=args.padding,
+                fg_color=args.fg_color,
+                bg_color=args.bg_color,
+            )
+            import xml.etree.ElementTree as ET
+            svg = ET.tostring(xml.getroot())
+            if args.output: #we need to show it
+                with open(args.output,'w') as f:
+                    f.write(svg)
+            else:
+                import tempfile
+                try:
+                    from PIL import ImageShow
+                except ImportError:
+                    print('!!!!! unable to show svg')
+                f, afn = tempfile.mkstemp(suffix='.svg')
+                os.write(f,svg)
+                os.close(f)
+                for v in ImageShow._viewers:
+                    if v.show_file(afn): break
+                else:
+                    os.remove(afn)
+                    print('!!!!! cannot find svg viewer')
+        else:
+            image = render_image(
+                codes,
+                scale=args.scale,
+                ratio=args.ratio,
+                padding=args.padding,
+                fg_color=args.fg_color,
+                bg_color=args.bg_color,
+            )
+            if args.output:
+                image.save(args.output)
+            else:
+                image.show()
     except Exception as e:
         print_err(str(e))
         return
-
-    if args.output:
-        image.save(args.output)
-    else:
-        image.show()
 
 
 def main():
