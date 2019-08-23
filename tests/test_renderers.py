@@ -22,8 +22,9 @@ def test_render_svg():
     scale = 2
     ratio = 4
     description = "hi there"
+    padding = 5
 
-    tree = render_svg(codes, scale=scale, ratio=ratio, description=description)
+    tree = render_svg(codes, scale=scale, ratio=ratio, description=description, padding=padding)
     assert isinstance(tree, ElementTree)
     assert tree.findtext("description") == description
 
@@ -32,8 +33,8 @@ def test_render_svg():
 
     root = tree.getroot()
 
-    assert root.get("width") == str(width * scale)
-    assert root.get("height") == str(height * scale * ratio)
+    assert root.get("width") == str(width * scale+2*padding)
+    assert root.get("height") == str(height * scale * ratio + 2*padding)
     assert root.get("version") == "1.1"
     assert root.get("xmlns") == "http://www.w3.org/2000/svg"
 
