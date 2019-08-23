@@ -107,7 +107,7 @@ def do_encode(args):
                 try:
                     from PIL import ImageShow
                 except ImportError:
-                    print '!!!!! unable to show svg'
+                    print('!!!!! unable to show svg')
                 f, afn = tempfile.mkstemp(suffix='.svg')
                 os.write(f,svg)
                 os.close(f)
@@ -115,7 +115,7 @@ def do_encode(args):
                     if v.show_file(afn): break
                 else:
                     os.remove(afn)
-                    print '!!!!! cannot find svg viewer'
+                    print('!!!!! cannot find svg viewer')
         else:
             image = render_image(
                 codes,
