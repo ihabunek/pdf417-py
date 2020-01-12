@@ -2,6 +2,11 @@
 pdf417gen changelog
 ===================
 
+0.7.1 (2020-01-12)
+------------------
+
+* Fix issue with Pillow 7 which changed the default resize filter to BICUBIC.
+
 0.7.0 (2018-11-05)
 ------------------
 
