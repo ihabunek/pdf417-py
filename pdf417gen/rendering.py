@@ -52,7 +52,7 @@ def render_image(codes, scale=3, ratio=3, padding=20, fg_color="#000", bg_color=
         px[x, y] = fg_color if visible else bg_color
 
     # Scale and add padding
-    image = image.resize((scale * width, scale * height * ratio))
+    image = image.resize((scale * width, scale * height * ratio), resample=Image.NEAREST)
     image = ImageOps.expand(image, padding, bg_color)
 
     return image
