@@ -15,16 +15,14 @@ def barcode_size(codes):
 
 
 def modules(codes):
-    """Iterates over barcode codes and yields barcode moudles.
-
-    Yields: column number (int), row number (int), module visibility (bool).
-    """
+    """Iterates over codes and yields barcode moudles as (y, x) tuples."""
 
     for row_id, row in enumerate(codes):
         col_id = 0
         for value in row:
             for digit in format(value, 'b'):
-                yield col_id, row_id, digit == "1"
+                if digit == "1":
+                    yield col_id, row_id
                 col_id += 1
 
 
@@ -48,8 +46,8 @@ def render_image(codes, scale=3, ratio=3, padding=20, fg_color="#000", bg_color=
 
     # Draw the pixle grid
     px = image.load()
-    for x, y, visible in modules(codes):
-        px[x, y] = fg_color if visible else bg_color
+    for x, y in modules(codes):
+        px[x, y] = fg_color
 
     # Scale and add padding
     image = image.resize((scale * width, scale * height * ratio), resample=Image.NEAREST)
@@ -86,16 +84,12 @@ def render_svg(codes, scale=3, ratio=3, color="#000", description=None):
     })
 
     # Generate the barcode modules
-    for col_id, row_id, visible in modules(codes):
-        x = col_id * scale_x
-        y = row_id * scale_y
-
-        if visible:
-            SubElement(group, 'rect', {
-                "x": str(x),
-                "y": str(y),
-                "width": str(scale_x),
-                "height": str(scale_y),
-            })
+    for col_id, row_id in modules(codes):
+        SubElement(group, 'rect', {
+            "x": str(col_id * scale_x),
+            "y": str(row_id * scale_y),
+            "width": str(scale_x),
+            "height": str(scale_y),
+        })
 
     return ElementTree(element=root)

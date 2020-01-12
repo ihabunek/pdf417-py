@@ -1,9 +1,23 @@
 from pdf417gen import render_svg, render_image, encode
-from pdf417gen.rendering import barcode_size, modules, rgb_to_hex
+from pdf417gen.rendering import barcode_size, rgb_to_hex
 from PIL.Image import Image
 from xml.etree.ElementTree import ElementTree
 
 codes = encode("hello world!")
+
+
+def modules(codes):
+    """Iterates over barcode codes and yields barcode moudles.
+
+    Yields: column number (int), row number (int), module visibility (bool).
+    """
+
+    for row_id, row in enumerate(codes):
+        col_id = 0
+        for value in row:
+            for digit in format(value, 'b'):
+                yield col_id, row_id, digit == "1"
+                col_id += 1
 
 
 def test_rgb_to_hex():
