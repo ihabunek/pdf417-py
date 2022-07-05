@@ -9,15 +9,8 @@ htmlcov:
 	pytest --cov=pdf417gen --cov-report=html
 
 dist :
-	@echo "\nMaking source"
-	@echo "-------------"
-	@python setup.py sdist
-
-	@echo "\nMaking wheel"
-	@echo "-------------"
-	@python setup.py bdist_wheel --universal
-
-	@echo "\nDone."
+	python setup.py sdist
+	python setup.py bdist_wheel --python-tag=py3
 
 clean :
 	rm -rf build dist *.egg-info MANIFEST htmlcov
