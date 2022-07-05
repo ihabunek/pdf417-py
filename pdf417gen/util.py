@@ -1,5 +1,3 @@
-from __future__ import division
-
 from builtins import bytes, str, zip
 from itertools import tee, islice, chain
 

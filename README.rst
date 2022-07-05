@@ -85,16 +85,16 @@ Usage overview:
     svg.write("barcode.svg")
 
 
-Supports strings (unicode in py2) and byte arrays (str in py2):
+Supports unicode:
 
 .. code-block:: python
 
     # These two inputs encode to the same code words
-    encode(u"love 💔")
+    encode("love 💔")
     encode(b"love \xf0\x9f\x92\x94")
 
     # Default encoding is UTF-8, but you can specify your own
-    encode(u"love 💔", encoding="utf-8")
+    encode("love 💔", encoding="utf-8")
 
 
 Encoding data

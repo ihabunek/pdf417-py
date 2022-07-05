@@ -1,5 +1,3 @@
-from __future__ import division
-
 import math
 
 from pdf417gen.codes import map_code_word
