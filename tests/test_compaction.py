@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import pytest
 
 from pdf417gen.compaction import compact, compact_bytes, compact_numbers, compact_text
