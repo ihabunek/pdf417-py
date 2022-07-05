@@ -17,11 +17,8 @@ MAX_CODE_WORDS = 928
 MIN_ROWS = 3
 MAX_ROWS = 90
 
-# Encoding to use when given a string and encoding is not specified
-DEFAULT_ENCODING = 'utf-8'
 
-
-def encode(data, columns=6, security_level=2, encoding=DEFAULT_ENCODING):
+def encode(data, columns=6, security_level=2, encoding="utf-8"):
     if columns < 1 or columns > 30:
         raise ValueError("'columns' must be between 1 and 30. Given: %r" % columns)
 
