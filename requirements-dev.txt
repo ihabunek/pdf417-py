@@ -1,5 +1,0 @@
-pytest-cov
-pytest
-twine
-wheel
-mock
