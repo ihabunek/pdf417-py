@@ -3,7 +3,7 @@ A simple performance test.
 """
 
 from datetime import datetime
-from pdf417gen import encode, render_image
+from pdf417gen import encode, render_image, render_svg
 
 ZEN = """
 Beautiful is better than ugly.
@@ -28,7 +28,7 @@ Namespaces are one honking great idea -- let's do more of those!
 """.strip()
 
 
-def test_encode(cycles=1000):
+def test_encode(cycles=100):
     start = datetime.now()
     for _ in range(cycles):
         encode(ZEN)
@@ -36,15 +36,25 @@ def test_encode(cycles=1000):
     print("Encode x{}: {}".format(cycles, duration))
 
 
-def test_render_image(cycles=1000):
+def test_render_image(cycles=100):
     codes = encode(ZEN)
     start = datetime.now()
     for _ in range(cycles):
         render_image(codes)
     duration = datetime.now() - start
-    print("Render x{}: {}".format(cycles, duration))
+    print("Render image x{}: {}".format(cycles, duration))
+
+
+def test_render_svg(cycles=100):
+    codes = encode(ZEN)
+    start = datetime.now()
+    for _ in range(cycles):
+        render_svg(codes)
+    duration = datetime.now() - start
+    print("Render SVG x{}: {}".format(cycles, duration))
 
 
 if __name__ == "__main__":
     test_encode()
     test_render_image()
+    test_render_svg()
