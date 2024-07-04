@@ -5,7 +5,6 @@ Can encode: ASCII 9, 10, 13 and 32-126
 Rate compaction: 2 bytes per code word
 """
 
-from itertools import chain
 from pdf417gen.data import CHARACTERS_LOOKUP, SWITCH_CODES, Submode
 from pdf417gen.util import chunks
 
@@ -32,20 +31,21 @@ def _get_submode(char):
 def compact_text_interim(data):
     """Encodes text data to interim code words."""
 
-    def _interim_text_generator(data):
+    def _interim_text_generator(chars):
         # By default, encoding starts in uppercase submode
         submode = Submode.UPPER
 
-        for char in data:
+        for char in chars:
             # Switch submode if needed
             if not _exists_in_submode(char, submode):
                 prev_submode = submode
                 submode = _get_submode(char)
-                yield SWITCH_CODES[prev_submode][submode]
+                for code in SWITCH_CODES[prev_submode][submode]:
+                    yield code
 
-            yield [CHARACTERS_LOOKUP[char][submode]]
+            yield CHARACTERS_LOOKUP[char][submode]
 
-    return chain(*_interim_text_generator(data))
+    return _interim_text_generator(data)
 
 
 # Since each code word consists of 2 characters, a padding value is
