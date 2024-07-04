@@ -2,10 +2,12 @@
 pdf417gen changelog
 ===================
 
-1.0.0 (TBA)
+0.8.0 (TBA)
 -----------
 
-* **BC BREAK**: Drop support for Python < 3.6
+* **BC BREAK**: Require Python 3.8+
+* Modernized packaging
+* Minor performance improvements
 
 0.7.1 (2020-01-12)
 ------------------

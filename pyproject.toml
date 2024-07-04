@@ -9,7 +9,7 @@ description = "PDF417 2D barcode generator for Python"
 keywords=["pdf417", "2d", "barcode", "generator"]
 readme = "README.rst"
 license = { file="LICENSE" }
-requires-python = ">=3.6"
+requires-python = ">=3.8"
 dynamic = ["version"]
 
 classifiers = [
