@@ -2,8 +2,8 @@
 pdf417gen changelog
 ===================
 
-0.8.0 (TBA)
------------
+0.8.0 (2024-07-04)
+------------------
 
 * **BC BREAK**: Require Python 3.8+
 * Modernized packaging
