@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import pytest
 
 from pdf417gen.compaction import TEXT_LATCH, NUMERIC_LATCH
