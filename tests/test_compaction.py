@@ -13,7 +13,7 @@ def test_byte_compactor():
 
     assert do_compact("alcool") == [163, 238, 432, 766, 244]
     assert do_compact("alcoolique") == [163, 238, 432, 766, 244, 105, 113, 117, 101]
-
+    assert do_compact("\00alc\00l") == [0, 573, 880, 505, 712]
 
 def test_text_compactor_interim():
     def do_compact(str):
