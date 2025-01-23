@@ -23,6 +23,8 @@ def _compact_chunk(chunk):
     digits = [i for i in chunk]
 
     if len(chunk) == 6:
-        return switch_base(digits, 256, 900, 5)
+        base900 = switch_base(digits, 256, 900)
+        return [0] * (5 - len(base900)) + base900
+
 
     return digits

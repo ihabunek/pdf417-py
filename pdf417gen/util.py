@@ -6,22 +6,18 @@ def from_base(digits, base):
     return sum(v * (base ** (len(digits) - k - 1)) for k, v in enumerate(digits))
 
 
-def to_base(value, base, target_length=None):
+def to_base(value, base):
     digits = []
 
     while value > 0:
         digits.insert(0, value % base)
         value //= base
 
-    if target_length:
-        # left-pad with 0s to reach target_length
-        return [0] * (target_length - len(digits)) + digits
-
     return digits
 
 
-def switch_base(digits, source_base, target_base, target_length):
-    return to_base(from_base(digits, source_base), target_base, target_length)
+def switch_base(digits, source_base, target_base):
+    return to_base(from_base(digits, source_base), target_base)
 
 
 def chunks(iterable, size):
