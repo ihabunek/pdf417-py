@@ -9,3 +9,4 @@ dist/
 env*/
 tmp/
 /pyrightconfig.json
+/uv.lock
