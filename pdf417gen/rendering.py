@@ -3,7 +3,7 @@ from PIL import Image, ImageColor, ImageOps
 from PIL.Image import Resampling
 from xml.etree.ElementTree import ElementTree, Element, SubElement
 
-ColorTuple = Tuple[int, int, int] | Tuple[int, int, int, int]
+ColorTuple = Union[Tuple[int, int, int], Tuple[int, int, int, int]]
 Color = Union[ColorTuple, str]
 
 
