@@ -1,4 +1,5 @@
 import math
+from typing import Union
 
 from pdf417gen.codes import map_code_word
 from pdf417gen.compaction import compact
@@ -18,7 +19,12 @@ MIN_ROWS = 3
 MAX_ROWS = 90
 
 
-def encode(data, columns=6, security_level=2, encoding="utf-8"):
+def encode(
+    data: Union[str, bytes],
+    columns: int = 6,
+    security_level: int = 2,
+    encoding: str = "utf-8"
+):
     if columns < 1 or columns > 30:
         raise ValueError("'columns' must be between 1 and 30. Given: %r" % columns)
 

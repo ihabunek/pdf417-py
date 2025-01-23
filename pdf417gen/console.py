@@ -1,7 +1,7 @@
 import sys
 
 from argparse import ArgumentParser
-from typing import List
+from typing import List, Union
 
 from pdf417gen import encode, render_image
 
@@ -67,19 +67,19 @@ def get_parser() -> ArgumentParser:
 
 def do_encode(raw_args: List[str]):
     args = get_parser().parse_args(raw_args)
-    text: str = args.text
+    data: Union[str, bytes] = args.text
 
     # If no text is given, check stdin
-    if not text:
-        text = sys.stdin.read()
+    if not data:
+        data = sys.stdin.buffer.read()
 
-    if not text:
+    if not data:
         print_err("No input given")
         return
 
     try:
         codes = encode(
-            text,
+            data,
             columns=args.columns,
             security_level=args.security_level,
             encoding=args.encoding,
@@ -107,7 +107,7 @@ def main():
     command = sys.argv[1] if len(sys.argv) > 1 else None
     args = sys.argv[2:]
 
-    if command == 'encode':
+    if command == "encode":
         do_encode(args)
     else:
         print_usage()
