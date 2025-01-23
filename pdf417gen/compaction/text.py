@@ -5,15 +5,17 @@ Can encode: ASCII 9, 10, 13 and 32-126
 Rate compaction: 2 bytes per code word
 """
 
+from typing import Iterable, Tuple
 from pdf417gen.data import CHARACTERS_LOOKUP, SWITCH_CODES, Submode
+from pdf417gen.types import Codeword
 from pdf417gen.util import chunks
 
 
-def _exists_in_submode(char, submode):
+def _exists_in_submode(char: int, submode: str) -> bool:
     return char in CHARACTERS_LOOKUP and submode in CHARACTERS_LOOKUP[char]
 
 
-def _get_submode(char):
+def _get_submode(char: int) -> str:
     if char not in CHARACTERS_LOOKUP:
         raise ValueError("Cannot encode char: {}".format(char))
 
@@ -28,10 +30,10 @@ def _get_submode(char):
     raise ValueError("Cannot encode char: {}".format(char))
 
 
-def compact_text_interim(data):
+def compact_text_interim(data: bytes):
     """Encodes text data to interim code words."""
 
-    def _interim_text_generator(chars):
+    def _interim_text_generator(chars: bytes):
         # By default, encoding starts in uppercase submode
         submode = Submode.UPPER
 
@@ -54,14 +56,14 @@ def compact_text_interim(data):
 PADDING_INTERIM_CODE = 29
 
 
-def _compact_chunk(chunk):
+def _compact_chunk(chunk: Tuple[int, ...]) -> Codeword:
     if len(chunk) == 1:
         chunk = (chunk[0], PADDING_INTERIM_CODE)
 
     return 30 * chunk[0] + chunk[1]
 
 
-def compact_text(data):
+def compact_text(data: bytes) -> Iterable[Codeword]:
     """Encodes data into code words using the Text compaction mode."""
     interim_codes = compact_text_interim(data)
     return (_compact_chunk(chunk) for chunk in chunks(interim_codes, 2))

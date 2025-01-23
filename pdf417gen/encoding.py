@@ -1,14 +1,15 @@
 import math
-from typing import Union
+from typing import List, Tuple, Union
 
 from pdf417gen.codes import map_code_word
 from pdf417gen.compaction import compact
 from pdf417gen.error_correction import compute_error_correction_code_words
+from pdf417gen.types import Codeword
 from pdf417gen.util import chunks, to_bytes
 
 START_CHARACTER = 0x1fea8
 STOP_CHARACTER = 0x3fa29
-PADDING_CODE_WORD = 900
+PADDING_CODE_WORD: Codeword = 900
 
 # Maximum nubmer of code words which can be contained in a bar code, including
 # the length descriptor, data, error correction and padding
@@ -43,7 +44,7 @@ def encode(
     return list(encode_rows(rows, num_cols, security_level))
 
 
-def encode_rows(rows, num_cols, security_level):
+def encode_rows(rows: List[Tuple[Codeword, ...]], num_cols: int, security_level: int):
     num_rows = len(rows)
 
     for row_no, row_data in enumerate(rows):
@@ -53,7 +54,7 @@ def encode_rows(rows, num_cols, security_level):
         yield encode_row(row_no, row_data, left, right)
 
 
-def encode_row(row_no, row_words, left, right):
+def encode_row(row_no: int, row_words: Tuple[Codeword, ...], left: Codeword, right: Codeword):
     table_idx = row_no % 3
 
     # Convert high level code words to low level code words
@@ -64,7 +65,7 @@ def encode_row(row_no, row_words, left, right):
     return [START_CHARACTER, left_low] + row_words_low + [right_low, STOP_CHARACTER]
 
 
-def encode_high(data, columns, security_level):
+def encode_high(data: bytes, columns: int, security_level: int) -> List[Codeword]:
     """Converts the input string to high level code words.
 
     Including the length indicator and the error correction words, but without
@@ -100,7 +101,7 @@ def encode_high(data, columns, security_level):
     return extendend_words + ec_words
 
 
-def validate_barcode_size(length_descriptor, row_count):
+def validate_barcode_size(length_descriptor: int, row_count: int):
     if length_descriptor > MAX_CODE_WORDS:
         raise ValueError(
             "Data too long. Generated bar code has length descriptor of %d. "
@@ -117,7 +118,7 @@ def validate_barcode_size(length_descriptor, row_count):
             "Try increasing column count." % (row_count, MAX_ROWS))
 
 
-def get_left_code_word(row_no, num_rows, num_cols, security_level):
+def get_left_code_word(row_no: int, num_rows: int, num_cols: int, security_level: int) -> Codeword:
     table_id = row_no % 3
 
     if table_id == 0:
@@ -126,11 +127,13 @@ def get_left_code_word(row_no, num_rows, num_cols, security_level):
         x = security_level * 3 + (num_rows - 1) % 3
     elif table_id == 2:
         x = num_cols - 1
+    else:
+        raise ValueError("Invalid table_id")
 
     return 30 * (row_no // 3) + x
 
 
-def get_right_code_word(row_no, num_rows, num_cols, security_level):
+def get_right_code_word(row_no: int, num_rows: int, num_cols: int, security_level: int) -> Codeword:
     table_id = row_no % 3
 
     if table_id == 0:
@@ -139,11 +142,13 @@ def get_right_code_word(row_no, num_rows, num_cols, security_level):
         x = (num_rows - 1) // 3
     elif table_id == 2:
         x = security_level * 3 + (num_rows - 1) % 3
+    else:
+        raise ValueError("Invalid table_id")
 
     return 30 * (row_no // 3) + x
 
 
-def get_padding(data_count, ec_count, num_cols):
+def get_padding(data_count: int, ec_count: int, num_cols: int) -> List[Codeword]:
     # Total number of data words and error correction words, additionally
     # reserve 1 code word for the length descriptor
     total_count = data_count + ec_count + 1

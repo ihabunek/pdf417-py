@@ -7,7 +7,7 @@ CODES = [
 ]
 
 
-def map_code_word(table, word):
+def map_code_word(table: int, word: int):
     """Maps high-level code words to low level code words.
     """
     assert 0 <= table <= 2, "table must be between 0 and 2, given: %r" % table

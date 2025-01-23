@@ -1,21 +1,25 @@
+from typing import List, Optional, Tuple, Union
 from PIL import Image, ImageColor, ImageOps
 from PIL.Image import Resampling
 from xml.etree.ElementTree import ElementTree, Element, SubElement
 
+ColorTuple = Tuple[int, int, int] | Tuple[int, int, int, int]
+Color = Union[ColorTuple, str]
 
-def barcode_size(codes):
+
+def barcode_size(codes: List[List[int]]) -> Tuple[int, int]:
     """Returns the barcode size in modules."""
     num_rows = len(codes)
     num_cols = len(codes[0])
 
-    # 17 bodules per column, last column has an additional module
+    # 17 modules per column, last column has an additional module
     width = num_cols * 17 + 1
     height = num_rows
 
     return width, height
 
 
-def modules(codes):
+def modules(codes: List[List[int]]):
     """Iterates over codes and yields barcode moudles as (y, x) tuples."""
 
     for row_id, row in enumerate(codes):
@@ -27,37 +31,53 @@ def modules(codes):
                 col_id += 1
 
 
-def parse_color(color):
+def parse_color(color: str) -> ColorTuple:
     return ImageColor.getrgb(color)
 
 
-def rgb_to_hex(color):
+def rgb_to_hex(color: Color) -> str:
     return '#{0:02x}{1:02x}{2:02x}'.format(*color)
 
 
-def render_image(codes, scale=3, ratio=3, padding=20, fg_color="#000", bg_color="#FFF"):
+def render_image(
+    codes: List[List[int]],
+    scale: int = 3,
+    ratio: int = 3,
+    padding: int = 20,
+    fg_color: str = "#000",
+    bg_color: str = "#FFF"
+) -> Image.Image:
     width, height = barcode_size(codes)
 
     # Translate hex code colors to RGB tuples
-    bg_color = parse_color(bg_color)
-    fg_color = parse_color(fg_color)
+    bg_color_tuple = parse_color(bg_color)
+    fg_color_tuple = parse_color(fg_color)
 
     # Construct the image
-    image = Image.new("RGB", (width, height), bg_color)
+    image = Image.new("RGB", (width, height), bg_color_tuple)
 
     # Draw the pixle grid
     px = image.load()
+    if px is None:
+        raise ValueError("Failed loading image")
+
     for x, y in modules(codes):
-        px[x, y] = fg_color
+        px[x, y] = fg_color_tuple
 
     # Scale and add padding
     image = image.resize((scale * width, scale * height * ratio), resample=Resampling.NEAREST)
-    image = ImageOps.expand(image, padding, bg_color)
+    image = ImageOps.expand(image, padding, bg_color_tuple)
 
     return image
 
 
-def render_svg(codes, scale=3, ratio=3, color="#000", description=None):
+def render_svg(
+    codes: List[List[int]],
+    scale: int = 3,
+    ratio: int = 3,
+    color: str = "#000",
+    description: Optional[str] = None
+):
     # Barcode size in modules
     width, height = barcode_size(codes)
 

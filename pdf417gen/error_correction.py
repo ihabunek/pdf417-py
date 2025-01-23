@@ -1,9 +1,12 @@
 from builtins import range
+from typing import List
+
+from pdf417gen.types import Codeword
 
 from .data import ERROR_CORRECTION_FACTORS
 
 
-def compute_error_correction_code_words(data_words, level):
+def compute_error_correction_code_words(data_words: List[Codeword], level: int):
     assert 0 <= level <= 8
 
     # Correction factors for the given level

@@ -1,18 +1,18 @@
 from itertools import chain, groupby
+from typing import Generator, Iterable
 from pdf417gen.compaction.numeric import compact_numbers
 from pdf417gen.compaction.text import compact_text
+from pdf417gen.types import Chunk
 from pdf417gen.util import iterate_prev_next
 
 
-def replace_short_numeric_chunks(chunks):
+def replace_short_numeric_chunks(chunks: Iterable[Chunk]) -> Generator[Chunk, None, None]:
     """
     The Numeric Compaction mode can pack almost 3 digits (2.93) into a symbol
     character. Though Numeric Compaction mode can be invoked at any digit
     length, it is recommended to use Numeric Compaction mode when there are
     more than 13 consecutive digits. Otherwise, use Text Compaction mode.
     """
-    from pdf417gen.compaction import Chunk
-
     for prev, chunk, next in iterate_prev_next(chunks):
         is_short_numeric_chunk = (
             chunk.compact_fn == compact_numbers
@@ -30,9 +30,7 @@ def replace_short_numeric_chunks(chunks):
             yield chunk
 
 
-def merge_chunks_with_same_compact_fn(chunks):
-    from pdf417gen.compaction import Chunk
-
+def merge_chunks_with_same_compact_fn(chunks: Iterable[Chunk]) -> Generator[Chunk, None, None]:
     for compact_fn, group in groupby(chunks, key=lambda x: x[1]):
         data = chain.from_iterable(chunk.data for chunk in group)
-        yield Chunk(list(data), compact_fn)
+        yield Chunk(bytes(data), compact_fn)

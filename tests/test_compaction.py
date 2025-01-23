@@ -110,11 +110,8 @@ def test_compact():
     ]),
 ])
 def test_split_to_chunks(data, expected):
-    def chars(string):
-        return [i for i in to_bytes(string)]
-
     data = to_bytes(data)
-    expected = [(chars(text), fn) for text, fn in expected]
+    expected = [Chunk(text.encode(), fn) for text, fn in expected]
     assert list(_split_to_chunks(data)) == expected
 
 
@@ -159,7 +156,7 @@ def test_optimizations(data, expected):
         return [i for i in to_bytes(string)]
 
     data = to_bytes(data)
-    expected = [Chunk(chars(text), fn) for text, fn in expected]
+    expected = [Chunk(text.encode(), fn) for text, fn in expected]
 
     actual = _split_to_chunks(data)
     actual = optimizations.replace_short_numeric_chunks(actual)
