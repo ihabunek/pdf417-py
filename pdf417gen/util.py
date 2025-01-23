@@ -1,5 +1,6 @@
 from builtins import bytes, str, zip
 from itertools import tee, islice, chain
+from typing import Any
 
 
 def from_base(digits, base):
@@ -30,9 +31,9 @@ def chunks(iterable, size):
         yield chunk
 
 
-def to_bytes(input, encoding='utf-8'):
+def to_bytes(input: Any, encoding: str = "utf-8"):
     if isinstance(input, bytes):
-        return bytes(input)
+        return input
 
     if isinstance(input, str):
         return bytes(input, encoding)
