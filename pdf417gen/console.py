@@ -1,6 +1,7 @@
 import sys
 
 from argparse import ArgumentParser
+from typing import List
 
 from pdf417gen import encode, render_image
 
@@ -15,11 +16,11 @@ def print_usage():
     print("https://github.com/ihabunek/pdf417gen")
 
 
-def print_err(msg):
+def print_err(msg: str):
     sys.stderr.write('\033[91m' + msg + '\033[0m' + "\n")
 
 
-def get_parser():
+def get_parser() -> ArgumentParser:
     parser = ArgumentParser(epilog="https://github.com/ihabunek/pdf417gen",
                             description="Generate a bar code from given input")
 
@@ -64,9 +65,9 @@ def get_parser():
     return parser
 
 
-def do_encode(args):
-    args = get_parser().parse_args(args)
-    text = args.text
+def do_encode(raw_args: List[str]):
+    args = get_parser().parse_args(raw_args)
+    text: str = args.text
 
     # If no text is given, check stdin
     if not text:
