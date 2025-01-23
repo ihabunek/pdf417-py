@@ -2,6 +2,12 @@
 pdf417gen changelog
 ===================
 
+0.8.1 (2025-01-23)
+------------------
+
+* Fix a bug where byte compaction would generate the wrong number of code words
+  (thanks @odony)
+
 0.8.0 (2024-07-04)
 ------------------
 
