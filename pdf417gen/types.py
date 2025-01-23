@@ -1,3 +1,4 @@
+from enum import Enum, auto
 from typing import Callable, Iterable, NamedTuple
 
 
@@ -18,3 +19,11 @@ class Chunk(NamedTuple):
 
     data: bytes
     compact_fn: CompactionFn
+
+
+class Submode(Enum):
+    """Text compaction sub-modes"""
+    UPPER = auto()
+    LOWER = auto()
+    MIXED = auto()
+    PUNCT = auto()

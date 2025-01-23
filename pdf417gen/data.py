@@ -1,8 +1,10 @@
-# Text encoder submodes
-UPPER = 'UPPER'
-LOWER = 'LOWER'
-MIXED = 'MIXED'
-PUNCT = 'PUNCT'
+from pdf417gen.types import Submode
+
+# Shorthand for sub-modes
+UPPER = Submode.UPPER
+LOWER = Submode.LOWER
+MIXED = Submode.MIXED
+PUNCT = Submode.PUNCT
 
 CHARACTERS_LOOKUP = {
     9:   {MIXED: 12, PUNCT: 12},               # \t
@@ -147,14 +149,6 @@ SWITCH_CODES = {
                 SWITCH_CODE_LOOKUP[UPPER][MIXED]],
     },
 }
-
-
-class Submode:
-    UPPER = UPPER
-    LOWER = LOWER
-    MIXED = MIXED
-    PUNCT = PUNCT
-
 
 # Reed solomon error correction factors, per level 0-8
 ERROR_CORRECTION_FACTORS = [

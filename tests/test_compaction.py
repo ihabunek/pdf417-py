@@ -5,6 +5,7 @@ from pdf417gen.compaction import optimizations, _split_to_chunks, Chunk
 from pdf417gen.compaction.text import compact_text_interim
 from pdf417gen.encoding import to_bytes
 from pdf417gen.data import SWITCH_CODE_LOOKUP
+from pdf417gen.types import Submode
 
 
 def test_byte_compactor():
@@ -20,13 +21,13 @@ def test_text_compactor_interim():
         return list(compact_text_interim(to_bytes(str)))
 
     # Latch codes for single-code transitions
-    lm = SWITCH_CODE_LOOKUP['LOWER']['MIXED']
-    ul = SWITCH_CODE_LOOKUP['UPPER']['LOWER']
-    um = SWITCH_CODE_LOOKUP['UPPER']['MIXED']
-    ml = SWITCH_CODE_LOOKUP['MIXED']['LOWER']
-    mu = SWITCH_CODE_LOOKUP['MIXED']['UPPER']
-    mp = SWITCH_CODE_LOOKUP['MIXED']['PUNCT']
-    pu = SWITCH_CODE_LOOKUP['PUNCT']['UPPER']
+    lm = SWITCH_CODE_LOOKUP[Submode.LOWER][Submode.MIXED]
+    ul = SWITCH_CODE_LOOKUP[Submode.UPPER][Submode.LOWER]
+    um = SWITCH_CODE_LOOKUP[Submode.UPPER][Submode.MIXED]
+    ml = SWITCH_CODE_LOOKUP[Submode.MIXED][Submode.LOWER]
+    mu = SWITCH_CODE_LOOKUP[Submode.MIXED][Submode.UPPER]
+    mp = SWITCH_CODE_LOOKUP[Submode.MIXED][Submode.PUNCT]
+    pu = SWITCH_CODE_LOOKUP[Submode.PUNCT][Submode.UPPER]
 
     # Upper transitions
     assert do_compact("Ff") == [5, ul, 5]

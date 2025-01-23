@@ -6,16 +6,16 @@ Rate compaction: 2 bytes per code word
 """
 
 from typing import Iterable, Tuple
-from pdf417gen.data import CHARACTERS_LOOKUP, SWITCH_CODES, Submode
-from pdf417gen.types import Codeword
+from pdf417gen.data import CHARACTERS_LOOKUP, SWITCH_CODES
+from pdf417gen.types import Codeword, Submode
 from pdf417gen.util import chunks
 
 
-def _exists_in_submode(char: int, submode: str) -> bool:
+def _exists_in_submode(char: int, submode: Submode) -> bool:
     return char in CHARACTERS_LOOKUP and submode in CHARACTERS_LOOKUP[char]
 
 
-def _get_submode(char: int) -> str:
+def _get_submode(char: int) -> Submode:
     if char not in CHARACTERS_LOOKUP:
         raise ValueError("Cannot encode char: {}".format(char))
 
