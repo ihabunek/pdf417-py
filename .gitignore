@@ -10,3 +10,5 @@ env*/
 tmp/
 /pyrightconfig.json
 /uv.lock
+.venv/
+.vscode/
