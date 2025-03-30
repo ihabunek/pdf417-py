@@ -1,4 +1,5 @@
 import sys
+import os
 
 from argparse import ArgumentParser
 from typing import List, Union
@@ -62,6 +63,21 @@ def get_parser() -> ArgumentParser:
     parser.add_argument("-o", "--output", dest="output", type=str,
                         help="Target file (if not given, will just show the barcode).")
 
+    # Add force binary option
+    parser.add_argument("--force-binary", dest="force_binary", action="store_true",
+                        help="Force byte compaction mode (useful for pre-compressed data).")
+
+    # Add macro encoding support
+    parser.add_argument("--macro", dest="use_macro", action="store_true",
+                        help="Use Macro PDF417 for large data.")
+                        
+    parser.add_argument("--segment-size", dest="segment_size", type=int,
+                        help="Maximum size in bytes for each segment (default is 800).",
+                        default=800)
+                        
+    parser.add_argument("--file-name", dest="file_name", type=str,
+                        help="Include file name in Macro PDF417 metadata.")
+
     return parser
 
 
@@ -78,29 +94,75 @@ def do_encode(raw_args: List[str]):
         return
 
     try:
-        codes = encode(
-            data,
-            columns=args.columns,
-            security_level=args.security_level,
-            encoding=args.encoding,
-        )
+        if args.use_macro:
+            # Use macro encoding for large data
+            from pdf417gen import encode_macro
+            
+            codes = encode_macro(
+                data,
+                columns=args.columns,
+                security_level=args.security_level,
+                encoding=args.encoding,
+                segment_size=args.segment_size,
+                file_name=args.file_name,
+                force_binary=args.force_binary,
+            )
+            
+            # Handle multiple barcodes
+            images = []
+            for i, barcode in enumerate(codes):
+                image = render_image(
+                    barcode,
+                    scale=args.scale,
+                    ratio=args.ratio,
+                    padding=args.padding,
+                    fg_color=args.fg_color,
+                    bg_color=args.bg_color,
+                )
+                images.append(image)
+                
+            if args.output:
+                # Save multiple images with suffix
+                base_name, ext = os.path.splitext(args.output)
+                for i, image in enumerate(images):
+                    output_file = f"{base_name}_{i+1:03d}{ext}"
+                    image.save(output_file)
+                print(f"Saved {len(images)} barcode images with prefix {base_name}_")
+            else:
+                # Show first image if there are too many
+                if len(images) > 5:
+                    print(f"Generated {len(images)} barcode images. Showing first one.")
+                    images[0].show()
+                else:
+                    # Show all images if there are just a few
+                    for img in images:
+                        img.show()
+        else:
+            # Standard encoding
+            codes = encode(
+                data,
+                columns=args.columns,
+                security_level=args.security_level,
+                encoding=args.encoding,
+                force_binary=args.force_binary,
+            )
 
-        image = render_image(
-            codes,
-            scale=args.scale,
-            ratio=args.ratio,
-            padding=args.padding,
-            fg_color=args.fg_color,
-            bg_color=args.bg_color,
-        )
+            image = render_image(
+                codes,
+                scale=args.scale,
+                ratio=args.ratio,
+                padding=args.padding,
+                fg_color=args.fg_color,
+                bg_color=args.bg_color,
+            )
+            
+            if args.output:
+                image.save(args.output)
+            else:
+                image.show()
     except Exception as e:
         print_err(str(e))
         return
-
-    if args.output:
-        image.save(args.output)
-    else:
-        image.show()
 
 
 def main():
