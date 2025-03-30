@@ -1,3 +1,6 @@
+import zlib
+import os
+import pytest
 from pdf417gen import encode, render_image
 from tests.integration.testing_utils import encode_large_data, decode_images
 
@@ -29,3 +32,35 @@ def test_encode_and_decode_large_data():
     
     # Assert the decoded data matches the original data
     assert result == test_data
+
+# Needs the dev branch of the pdf417decoder package
+# e.g. https://github.com/sparkfish/pdf417decoder.git#subdirectory=python
+def test_encode_and_decode_binary_data_with_forced_binary():
+    """Test encoding/decoding binary data with force_binary option enabled."""
+    # Create some compressed binary data
+    original_data = b"This is some test data that will be compressed " * 50
+    compressed_data = zlib.compress(original_data)
+    
+    # Encode with force_binary=True to preserve binary data structure
+    images = encode_large_data(compressed_data, force_binary=True)
+    
+    # Decode the images
+    result = decode_images(images)
+    
+    # Decompress and verify
+    decompressed = zlib.decompress(result)
+    assert decompressed == original_data
+
+# Add another test with random binary data
+@pytest.mark.parametrize("size", [100, 5000])
+def test_encode_and_decode_random_binary(size):
+    """Test encoding/decoding random binary data with force_binary option."""
+    # Generate random binary data
+    random_data = os.urandom(size)
+    
+    # Encode with force_binary=True
+    images = encode_large_data(random_data, force_binary=True)
+    
+    # Decode and verify
+    result = decode_images(images)
+    assert result == random_data
