@@ -408,15 +408,15 @@ def encode_with_control_block(
     data_words = list(compact(data))
     
     # Add control block
-    combined_words = data_words + control_block
+    payload_length = len(data_words) + len(control_block)
     
     # Get the padding to align data to column count
     ec_count = 2 ** (security_level + 1)
-    padding_words = get_padding(len(combined_words), ec_count, columns)
+    padding_words = get_padding(payload_length, ec_count, columns)
     
     # Length descriptor includes the data CWs, control block, padding CWs and the descriptor itself
     # but not the error correction CWs
-    length_descriptor = len(combined_words) + len(padding_words) + 1
+    length_descriptor = payload_length + len(padding_words) + 1
     
     # Total number of code words and number of rows
     cw_count = length_descriptor + ec_count
@@ -426,7 +426,7 @@ def encode_with_control_block(
     validate_barcode_size(length_descriptor, row_count)
     
     # Join all components
-    complete_words = [length_descriptor] + combined_words + padding_words
+    complete_words = [length_descriptor] + data_words + padding_words + control_block
     
     # Calculate error correction words
     ec_words = compute_error_correction_code_words(complete_words, security_level)
