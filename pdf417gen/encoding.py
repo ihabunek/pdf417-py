@@ -41,7 +41,8 @@ def encode(
     columns: int = 6,
     security_level: int = 2,
     encoding: str = "utf-8",
-    control_block: Optional[List[Codeword]] = None
+    control_block: Optional[List[Codeword]] = None,
+    force_binary: bool = False
 ) -> Barcode:
     """
     Encode data into a PDF417 barcode.
@@ -52,6 +53,7 @@ def encode(
         security_level: Error correction level (0-8)
         encoding: Character encoding for string data
         control_block: Optional control block for Macro PDF417
+        force_binary: Force byte compaction mode (useful for pre-compressed data)
     
     Returns:
         Encoded PDF417 barcode
@@ -66,7 +68,7 @@ def encode(
     data_bytes = to_bytes(data, encoding)
 
     # Convert data to code words and split into rows
-    code_words = encode_high(data_bytes, columns, security_level, control_block)
+    code_words = encode_high(data_bytes, columns, security_level, control_block, force_binary)
     rows = list(chunks(code_words, columns))
 
     return list(encode_rows(rows, columns, security_level))
@@ -97,7 +99,8 @@ def encode_high(
     data: bytes, 
     columns: int, 
     security_level: int,
-    control_block: Optional[List[Codeword]] = None
+    control_block: Optional[List[Codeword]] = None,
+    force_binary: bool = False
 ) -> List[Codeword]:
     """Converts the input string to high level code words.
 
@@ -106,7 +109,7 @@ def encode_high(
     if not control_block:
         control_block = []
     # Encode data to code words
-    data_words = list(compact(data))
+    data_words = list(compact(data, force_binary))
     
     # Calculate total payload length including control block if present
     payload_length = len(data_words) + len(control_block)
@@ -203,7 +206,8 @@ def encode_macro(
     sender: Optional[str] = None,
     addressee: Optional[str] = None,
     file_size: bool = False,
-    checksum: Optional[Union[bool, int]] = None
+    checksum: Optional[Union[bool, int]] = None,
+    force_binary: bool = False
 ) -> List[Barcode]:
     """
     Encode data using Macro PDF417 for large data that needs to be split across
@@ -222,6 +226,7 @@ def encode_macro(
         addressee: Name of the recipient to include
         file_size: Whether to include the file size in the barcode
         checksum: True to auto-generate, or an integer value (0-65535)
+        force_binary: Force byte compaction mode (useful for pre-compressed data)
 
     Timestamps are not supported because the max timestamp is in 1991.
     
@@ -289,11 +294,13 @@ def encode_macro(
         )
         
         # Encode segment with control block
-        barcode = encode_with_control_block(
+        barcode = encode(
             segment_data, 
-            control_block, 
             columns, 
             security_level, 
+            encoding=encoding,
+            control_block=control_block,
+            force_binary=force_binary
         )
         
         barcodes.append(barcode)
@@ -400,107 +407,3 @@ def encode_optional_field(field_id: int, value: Any) -> List[Codeword]:
         return []
     
     return result
-
-def encode_macro(
-    data: Union[str, bytes],
-    columns: int = 6,
-    security_level: int = 2, 
-    encoding: str = "utf-8",
-    segment_size: int = 800,
-    file_id: Optional[List[Codeword]] = None,
-    file_name: Optional[str] = None,
-    segment_count: bool = True,
-    sender: Optional[str] = None,
-    addressee: Optional[str] = None,
-    file_size: bool = False,
-    checksum: Optional[Union[bool, int]] = None
-) -> List[Barcode]:
-    """
-    Encode data using Macro PDF417 for large data that needs to be split across
-    multiple barcodes.
-    
-    Args:
-        data: The data to encode
-        columns: Number of columns in each symbol (1-30)
-        security_level: Error correction level (0-8)
-        encoding: Character encoding for the data
-        segment_size: Maximum size in bytes for each segment
-        file_id: Custom file ID codewords or None for auto-generated
-        file_name: Name of the file to include in the barcode
-        segment_count: Whether to include the segment count in the barcode (default, to allow multi page outputs)
-        sender: Name of the sender to include
-        addressee: Name of the recipient to include
-        file_size: Whether to include the file size in the barcode
-        checksum: True to auto-generate, or an integer value (0-65535)
-
-    Timestamps are not supported because the max timestamp is in 1991.
-    
-    Returns:
-        List of PDF417 barcodes, each represented as a list of rows
-    """
-    if columns < 1 or columns > 30:
-        raise ValueError("'columns' must be between 1 and 30. Given: %r" % columns)
-    
-    if security_level < 0 or security_level > 8:
-        raise ValueError("'security_level' must be between 0 and 8. Given: %r" % security_level)
-    
-    # Prepare input data as bytes
-    data_bytes = to_bytes(data, encoding)
-    data_size = len(data_bytes)
-    
-    # Auto-generate file ID if not provided
-    if file_id is None:
-        file_id = [int(time.time()) % 900]
-    
-    # Calculate how many segments we need
-    segments: List[bytes] = []
-    for i in range(0, data_size, segment_size):
-        segments.append(data_bytes[i:i+segment_size])
-    
-    segment_count_value = len(segments)
-    
-    # Build optional fields dictionary
-    optional_fields: Dict[int, Any] = {}
-    
-    if file_name is not None:
-        optional_fields[MACRO_FILE_NAME] = file_name
-    
-    if segment_count:
-        optional_fields[MACRO_SEGMENT_COUNT] = segment_count_value
-    
-    if sender is not None:
-        optional_fields[MACRO_SENDER] = sender
-    
-    if addressee is not None:
-        optional_fields[MACRO_ADDRESSEE] = addressee
-    
-    if file_size:
-        optional_fields[MACRO_FILE_SIZE] = data_size
-    
-    if checksum is not None:
-        if checksum is True:
-            # TODO compute checksum of the data
-            raise ValueError("Auto-generated checksum is not supported")
-        else:
-            optional_fields[MACRO_CHECKSUM] = checksum
-    
-    # Generate barcodes for each segment
-    barcodes: List[List[List[int]]] = []
-    for i, segment_data in enumerate(segments):
-        # Determine if this is the last segment
-        is_last = (i == segment_count_value - 1)
-        
-        # Create control block for this segment
-        control_block = create_macro_control_block(
-            segment_index=i,
-            file_id=file_id,
-            optional_fields=optional_fields,
-            is_last=is_last
-        )
-        
-        # Encode segment with control block
-        barcode = encode(segment_data, columns, security_level, control_block=control_block)
-        
-        barcodes.append(barcode)
-    
-    return barcodes

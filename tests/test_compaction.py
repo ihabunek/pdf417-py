@@ -102,6 +102,59 @@ def test_compact():
     assert do_compact(b"\x0B\x0B\x0B\x0B\x0B\x0B") == [924, 18, 455, 694, 754, 291]
 
 
+def test_compact_force_binary_text():
+    """Test that force_binary=True correctly handles text data."""
+    def do_compact(data, force=False):
+        return list(compact(to_bytes(data), force_binary=force))
+    
+    # Text that would normally use text compaction
+    text_data = "HelloWorld"
+    text_normal = do_compact(text_data)
+    text_forced = do_compact(text_data, force=True)
+    
+    # Normal should use text compaction (no byte switch)
+    assert 901 not in text_normal[:1]  # No BYTE_LATCH at start
+    assert 924 not in text_normal[:1]  # No BYTE_LATCH_ALT at start
+    
+    # Forced binary should start with byte latch
+    assert text_forced[0] in (901, 924)
+
+
+def test_compact_force_binary_numeric():
+    """Test that force_binary=True correctly handles numeric data."""
+    def do_compact(data, force=False):
+        return list(compact(to_bytes(data), force_binary=force))
+    
+    # Numeric data that would normally use numeric compaction
+    num_data = "1234567890"
+    num_normal = do_compact(num_data)
+    num_forced = do_compact(num_data, force=True)
+    
+    # Normal should use numeric compaction (902)
+    assert num_normal[0] == 902
+    
+    # Forced binary should use byte compaction
+    assert num_forced[0] in (901, 924)
+
+def test_compact_force_binary_already_binary():
+    """Test that force_binary=True correctly handles binary data."""
+    def do_compact(data, force=False):
+        if isinstance(data, str):
+            data = to_bytes(data)
+        return list(compact(data, force_binary=force))
+    
+    # Binary data (would use byte compaction either way)
+    binary_data = b"\x01\x02\x03\x04\x05"
+    bin_normal = do_compact(binary_data)
+    bin_forced = do_compact(binary_data, force=True)
+    
+    # Both should start with byte latch
+    assert bin_normal[0] in (901, 924)
+    assert bin_forced[0] in (901, 924)
+    
+    # Should be identical since both use byte compaction
+    assert bin_normal == bin_forced
+
 @pytest.mark.parametrize("data,expected", [
     ('aabb1122foobar💔', [
         ('aabb', compact_text),
