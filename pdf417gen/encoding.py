@@ -180,7 +180,12 @@ def encode_macro(
     encoding: str = "utf-8",
     segment_size: int = 800,
     file_id: Optional[List[Codeword]] = None,
-    optional_fields: Optional[Dict[int, Any]] = None
+    file_name: Optional[str] = None,
+    segment_count: bool = True,
+    sender: Optional[str] = None,
+    addressee: Optional[str] = None,
+    file_size: bool = False,
+    checksum: Optional[Union[bool, int]] = None
 ) -> List[Barcode]:
     """
     Encode data using Macro PDF417 for large data that needs to be split across
@@ -193,14 +198,14 @@ def encode_macro(
         encoding: Character encoding for the data
         segment_size: Maximum size in bytes for each segment
         file_id: Custom file ID codewords or None for auto-generated
-        optional_fields: Dictionary of optional fields to include
-            {MACRO_FILE_NAME: "filename.txt", 
-             MACRO_SEGMENT_COUNT: True,
-             MACRO_TIME_STAMP: True or Unix timestamp, 
-             MACRO_SENDER: "Sender Name",
-             MACRO_ADDRESSEE: "Recipient Name", 
-             MACRO_FILE_SIZE: True,
-             MACRO_CHECKSUM: True}
+        file_name: Name of the file to include in the barcode
+        segment_count: Whether to include the segment count in the barcode (default, to allow multi page outputs)
+        sender: Name of the sender to include
+        addressee: Name of the recipient to include
+        file_size: Whether to include the file size in the barcode
+        checksum: True to auto-generate, or an integer value (0-65535)
+
+    Timestamps are not supported because the max timestamp is in 1991.
     
     Returns:
         List of PDF417 barcodes, each represented as a list of rows
@@ -211,10 +216,6 @@ def encode_macro(
     if security_level < 0 or security_level > 8:
         raise ValueError("'security_level' must be between 0 and 8. Given: %r" % security_level)
     
-    # Initialize optional_fields if None
-    if optional_fields is None:
-        optional_fields = {}
-
     # Prepare input data as bytes
     data_bytes = to_bytes(data, encoding)
     data_size = len(data_bytes)
@@ -228,26 +229,38 @@ def encode_macro(
     for i in range(0, data_size, segment_size):
         segments.append(data_bytes[i:i+segment_size])
     
-    segment_count = len(segments)
+    segment_count_value = len(segments)
     
-    # If segment count is requested, add it to all symbols
-    include_segment_count = optional_fields.get(MACRO_SEGMENT_COUNT, False)
-    if include_segment_count:
-        optional_fields[MACRO_SEGMENT_COUNT] = segment_count
+    # Build optional fields dictionary
+    optional_fields: Dict[int, Any] = {}
     
-    # If file size is requested, add it
-    if optional_fields.get(MACRO_FILE_SIZE, False) is True:
+    if file_name is not None:
+        optional_fields[MACRO_FILE_NAME] = file_name
+    
+    if segment_count:
+        optional_fields[MACRO_SEGMENT_COUNT] = segment_count_value
+    
+    if sender is not None:
+        optional_fields[MACRO_SENDER] = sender
+    
+    if addressee is not None:
+        optional_fields[MACRO_ADDRESSEE] = addressee
+    
+    if file_size:
         optional_fields[MACRO_FILE_SIZE] = data_size
     
-    # If timestamp is requested as boolean, use current time
-    if optional_fields.get(MACRO_TIME_STAMP, False) is True:
-        optional_fields[MACRO_TIME_STAMP] = int(time.time())
+    if checksum is not None:
+        if checksum is True:
+            # TODO compute checksum of the data
+            raise ValueError("Auto-generated checksum is not supported")
+        else:
+            optional_fields[MACRO_CHECKSUM] = checksum
     
     # Generate barcodes for each segment
-    barcodes : List[List[List[int]]]= []
+    barcodes: List[List[List[int]]] = []
     for i, segment_data in enumerate(segments):
         # Determine if this is the last segment
-        is_last = (i == segment_count - 1)
+        is_last = (i == segment_count_value - 1)
         
         # Create control block for this segment
         control_block = create_macro_control_block(
