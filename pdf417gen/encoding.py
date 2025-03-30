@@ -40,24 +40,36 @@ def encode(
     data: Union[str, bytes],
     columns: int = 6,
     security_level: int = 2,
-    encoding: str = "utf-8"
+    encoding: str = "utf-8",
+    control_block: Optional[List[Codeword]] = None
 ) -> Barcode:
+    """
+    Encode data into a PDF417 barcode.
+    
+    Args:
+        data: The data to encode (string or bytes)
+        columns: Number of columns (1-30)
+        security_level: Error correction level (0-8)
+        encoding: Character encoding for string data
+        control_block: Optional control block for Macro PDF417
+    
+    Returns:
+        Encoded PDF417 barcode
+    """
     if columns < 1 or columns > 30:
         raise ValueError("'columns' must be between 1 and 30. Given: %r" % columns)
 
     if security_level < 0 or security_level > 8:
         raise ValueError("'security_level' must be between 1 and 8. Given: %r" % security_level)
 
-    num_cols = columns  # Nomenclature
-
     # Prepare input
     data_bytes = to_bytes(data, encoding)
 
     # Convert data to code words and split into rows
-    code_words = encode_high(data_bytes, num_cols, security_level)
-    rows = list(chunks(code_words, num_cols))
+    code_words = encode_high(data_bytes, columns, security_level, control_block)
+    rows = list(chunks(code_words, columns))
 
-    return list(encode_rows(rows, num_cols, security_level))
+    return list(encode_rows(rows, columns, security_level))
 
 
 def encode_rows(rows: List[Tuple[Codeword, ...]], num_cols: int, security_level: int):
@@ -81,40 +93,46 @@ def encode_row(row_no: int, row_words: Tuple[Codeword, ...], left: Codeword, rig
     return [START_CHARACTER, left_low] + row_words_low + [right_low, STOP_CHARACTER]
 
 
-def encode_high(data: bytes, columns: int, security_level: int) -> List[Codeword]:
+def encode_high(
+    data: bytes, 
+    columns: int, 
+    security_level: int,
+    control_block: Optional[List[Codeword]] = None
+) -> List[Codeword]:
     """Converts the input string to high level code words.
 
-    Including the length indicator and the error correction words, but without
-    padding.
+    Including the length indicator, control block (if provided), and the error correction words.
     """
-
+    if not control_block:
+        control_block = []
     # Encode data to code words
     data_words = list(compact(data))
-    data_count = len(data_words)
-
+    
+    # Calculate total payload length including control block if present
+    payload_length = len(data_words) + len(control_block)
+    
     # Get the padding to align data to column count
     ec_count = 2 ** (security_level + 1)
-    padding_words = get_padding(data_count, ec_count, columns)
+    padding_words = get_padding(payload_length, ec_count, columns)
     padding_count = len(padding_words)
 
-    # Length descriptor includes the data CWs, padding CWs and the descriptor
-    # itself but not the error correction CWs
-    length_descriptor = data_count + padding_count + 1
+    # Length descriptor includes all components except error correction
+    length_descriptor = payload_length + padding_count + 1
 
     # Total number of code words and number of rows
-    cw_count = data_count + ec_count + padding_count + 1
+    cw_count = length_descriptor + ec_count
     row_count = math.ceil(cw_count / columns)
 
     # Check the generated bar code's size is within specification parameters
     validate_barcode_size(length_descriptor, row_count)
 
-    # Join encoded data with the length specifier and padding
-    extendend_words = [length_descriptor] + data_words + padding_words
+    # Join encoded data with the length specifier, data and padding
+    extended_words = [length_descriptor] + data_words + padding_words + control_block
 
     # Calculate error correction words
-    ec_words = compute_error_correction_code_words(extendend_words, security_level)
+    ec_words = compute_error_correction_code_words(extended_words, security_level)
 
-    return extendend_words + ec_words
+    return extended_words + ec_words
 
 
 def validate_barcode_size(length_descriptor: int, row_count: int):
@@ -276,7 +294,6 @@ def encode_macro(
             control_block, 
             columns, 
             security_level, 
-            encoding
         )
         
         barcodes.append(barcode)
@@ -384,56 +401,106 @@ def encode_optional_field(field_id: int, value: Any) -> List[Codeword]:
     
     return result
 
-def encode_with_control_block(
-    data: bytes,
-    control_block: List[Codeword],
-    columns: int,
-    security_level: int,
-    encoding: str
-) -> Barcode:
+def encode_macro(
+    data: Union[str, bytes],
+    columns: int = 6,
+    security_level: int = 2, 
+    encoding: str = "utf-8",
+    segment_size: int = 800,
+    file_id: Optional[List[Codeword]] = None,
+    file_name: Optional[str] = None,
+    segment_count: bool = True,
+    sender: Optional[str] = None,
+    addressee: Optional[str] = None,
+    file_size: bool = False,
+    checksum: Optional[Union[bool, int]] = None
+) -> List[Barcode]:
     """
-    Encode data with a control block.
+    Encode data using Macro PDF417 for large data that needs to be split across
+    multiple barcodes.
     
     Args:
-        data: Data bytes to encode
-        control_block: Control block codewords
-        columns: Number of columns
-        security_level: Error correction level
-        encoding: Character encoding
+        data: The data to encode
+        columns: Number of columns in each symbol (1-30)
+        security_level: Error correction level (0-8)
+        encoding: Character encoding for the data
+        segment_size: Maximum size in bytes for each segment
+        file_id: Custom file ID codewords or None for auto-generated
+        file_name: Name of the file to include in the barcode
+        segment_count: Whether to include the segment count in the barcode (default, to allow multi page outputs)
+        sender: Name of the sender to include
+        addressee: Name of the recipient to include
+        file_size: Whether to include the file size in the barcode
+        checksum: True to auto-generate, or an integer value (0-65535)
+
+    Timestamps are not supported because the max timestamp is in 1991.
     
     Returns:
-        Encoded PDF417 barcode
+        List of PDF417 barcodes, each represented as a list of rows
     """
-    # Compact the data
-    data_words = list(compact(data))
+    if columns < 1 or columns > 30:
+        raise ValueError("'columns' must be between 1 and 30. Given: %r" % columns)
     
-    # Add control block
-    payload_length = len(data_words) + len(control_block)
+    if security_level < 0 or security_level > 8:
+        raise ValueError("'security_level' must be between 0 and 8. Given: %r" % security_level)
     
-    # Get the padding to align data to column count
-    ec_count = 2 ** (security_level + 1)
-    padding_words = get_padding(payload_length, ec_count, columns)
+    # Prepare input data as bytes
+    data_bytes = to_bytes(data, encoding)
+    data_size = len(data_bytes)
     
-    # Length descriptor includes the data CWs, control block, padding CWs and the descriptor itself
-    # but not the error correction CWs
-    length_descriptor = payload_length + len(padding_words) + 1
+    # Auto-generate file ID if not provided
+    if file_id is None:
+        file_id = [int(time.time()) % 900]
     
-    # Total number of code words and number of rows
-    cw_count = length_descriptor + ec_count
-    row_count = math.ceil(cw_count / columns)
+    # Calculate how many segments we need
+    segments: List[bytes] = []
+    for i in range(0, data_size, segment_size):
+        segments.append(data_bytes[i:i+segment_size])
     
-    # Check the generated bar code's size is within specification parameters
-    validate_barcode_size(length_descriptor, row_count)
+    segment_count_value = len(segments)
     
-    # Join all components
-    complete_words = [length_descriptor] + data_words + padding_words + control_block
+    # Build optional fields dictionary
+    optional_fields: Dict[int, Any] = {}
     
-    # Calculate error correction words
-    ec_words = compute_error_correction_code_words(complete_words, security_level)
+    if file_name is not None:
+        optional_fields[MACRO_FILE_NAME] = file_name
     
-    # Final codewords
-    final_words = complete_words + ec_words
+    if segment_count:
+        optional_fields[MACRO_SEGMENT_COUNT] = segment_count_value
     
-    # Split into rows and encode
-    rows = list(chunks(final_words, columns))
-    return list(encode_rows(rows, columns, security_level))
+    if sender is not None:
+        optional_fields[MACRO_SENDER] = sender
+    
+    if addressee is not None:
+        optional_fields[MACRO_ADDRESSEE] = addressee
+    
+    if file_size:
+        optional_fields[MACRO_FILE_SIZE] = data_size
+    
+    if checksum is not None:
+        if checksum is True:
+            # TODO compute checksum of the data
+            raise ValueError("Auto-generated checksum is not supported")
+        else:
+            optional_fields[MACRO_CHECKSUM] = checksum
+    
+    # Generate barcodes for each segment
+    barcodes: List[List[List[int]]] = []
+    for i, segment_data in enumerate(segments):
+        # Determine if this is the last segment
+        is_last = (i == segment_count_value - 1)
+        
+        # Create control block for this segment
+        control_block = create_macro_control_block(
+            segment_index=i,
+            file_id=file_id,
+            optional_fields=optional_fields,
+            is_last=is_last
+        )
+        
+        # Encode segment with control block
+        barcode = encode(segment_data, columns, security_level, control_block=control_block)
+        
+        barcodes.append(barcode)
+    
+    return barcodes
