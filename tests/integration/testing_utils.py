@@ -5,7 +5,7 @@ import pdf417gen.rendering
 from typing import List, Union
 
 # add-hoc untility to decode a list of images and reassamble the encoded data
-def decode_images(images: list[Image.Image]) -> bytearray:
+def decode_images(images: List[Image.Image]) -> bytearray:
     info_list = []
     for image in images:
         decoder = PDF417Decoder(image)
