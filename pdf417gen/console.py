@@ -1,7 +1,7 @@
 import sys
 import os
 
-from argparse import ArgumentParser
+from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from typing import List, Union
 
 from pdf417gen import encode, render_image
@@ -22,60 +22,71 @@ def print_err(msg: str):
 
 
 def get_parser() -> ArgumentParser:
-    parser = ArgumentParser(epilog="https://github.com/ihabunek/pdf417gen",
-                            description="Generate a bar code from given input")
+    # Use the formatter that preserves description formatting
+    parser = ArgumentParser(
+        usage="%(prog)s encode [options] [text]",
+        epilog="https://github.com/ihabunek/pdf417gen",
+        description="Generate a PDF417 barcode from given input",
+        formatter_class=RawDescriptionHelpFormatter
+    )
 
     parser.add_argument("text", type=str, nargs="?",
                         help="Text or data to encode. Alternatively data can be piped in.")
 
     parser.add_argument("-c", "--columns", dest="columns", type=int,
-                        help="The number of columns (default is 6).",
+                        help="The number of columns (default: 6).",
                         default=6)
 
     parser.add_argument("-l", "--security-level", dest="security_level", type=int,
-                        help="Security level (default is 2).",
+                        help="Security level (default: 2).",
                         default=2)
 
     parser.add_argument("-e", "--encoding", dest="encoding", type=str,
-                        help="Character encoding used to decode input (default is utf-8).",
+                        help="Character encoding used to decode input (default: utf-8).",
                         default='utf-8')
 
     parser.add_argument("-s", "--scale", dest="scale", type=int,
-                        help="Module width in pixels (default is 3).",
+                        help="Module width in pixels (default: 3).",
                         default=3)
 
     parser.add_argument("-r", "--ratio", dest="ratio", type=int,
-                        help="Module height to width ratio (default is 3).",
+                        help="Module height to width ratio (default: 3).",
                         default=3)
 
     parser.add_argument("-p", "--padding", dest="padding", type=int,
-                        help="Image padding in pixels (default is 20).",
+                        help="Image padding in pixels (default: 20).",
                         default=20)
 
     parser.add_argument("-f", "--foreground-color", dest="fg_color", type=str,
-                        help="Foreground color in hex (default is '#000000').",
+                        help="Foreground color in hex (default: #000000).",
                         default="#000000")
 
     parser.add_argument("-b", "--background-color", dest="bg_color", type=str,
-                        help="Foreground color in hex (default is '#FFFFFF').",
+                        help="Background color in hex (default: #FFFFFF).",
                         default="#FFFFFF")
 
     parser.add_argument("-o", "--output", dest="output", type=str,
                         help="Target file (if not given, will just show the barcode).")
 
+    # Create a group for advanced options
+    advanced_group = parser.add_argument_group('Advanced Options')
+    
     # Add force binary option
-    parser.add_argument("--force-binary", dest="force_binary", action="store_true",
+    advanced_group.add_argument("--force-binary", dest="force_binary", action="store_true",
                         help="Force byte compaction mode (useful for pre-compressed data).")
 
+    # Create a group for macro options
+    macro_group = parser.add_argument_group('Macro PDF417 Options (for large data)')
+    
     # Add macro encoding support
-    parser.add_argument("--macro", dest="use_macro", action="store_true",
+    macro_group.add_argument("--macro", dest="use_macro", action="store_true",
                         help="Use Macro PDF417 for large data.")
                         
-    parser.add_argument("--segment-size", dest="segment_size", type=int,
-                        help="Maximum size in bytes for each segment (default is 800).",
+    macro_group.add_argument("--segment-size", dest="segment_size", type=int,
+                        help="Maximum size in bytes for each segment (default: 800).",
                         default=800)
                         
-    parser.add_argument("--file-name", dest="file_name", type=str,
+    macro_group.add_argument("--file-name", dest="file_name", type=str,
                         help="Include file name in Macro PDF417 metadata.")
 
     return parser
@@ -168,7 +179,7 @@ def do_encode(raw_args: List[str]):
 def main():
     command = sys.argv[1] if len(sys.argv) > 1 else None
     args = sys.argv[2:]
-
+    
     if command == "encode":
         do_encode(args)
     else:
