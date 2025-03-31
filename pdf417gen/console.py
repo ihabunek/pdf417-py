@@ -164,7 +164,7 @@ def do_encode(raw_args: List[str]):
                 columns=args.columns,
                 security_level=args.security_level,
                 encoding=args.encoding,
-                **({"force_binary": args.force_binary} if args.force_binary else {})
+                args.force_binary)
             )
 
             image = render_image(
