@@ -2,7 +2,7 @@ import zlib
 import os
 import pytest
 from pdf417gen import encode, render_image
-from tests.integration.testing_utils import encode_large_data, decode_images
+from .testing_utils import encode_large_data, decode_images
 
 def test_encode_and_decode_short_string():
     # Setup
@@ -53,7 +53,7 @@ def test_encode_and_decode_binary_data_with_forced_binary():
 
 # Add another test with random binary data
 @pytest.mark.parametrize("size", [100, 5000])
-def test_encode_and_decode_random_binary(size):
+def test_encode_and_decode_random_binary(size: int):
     """Test encoding/decoding random binary data with force_binary option."""
     # Generate random binary data
     random_data = os.urandom(size)
