@@ -63,12 +63,11 @@ def test_encode_exception(render_image, encode, capsys):
 
     console.do_encode(["foo"])
 
-    encode.assert_called_once_with(
-        "foo",
+    encode.assert_called_once_with("foo",
         columns=6,
         encoding='utf-8',
-        security_level=2
-        force_binary=False,
+        security_level=2,
+        force_binary=False
     )
     render_image.assert_not_called()
 
