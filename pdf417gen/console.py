@@ -1,5 +1,6 @@
 import sys
 import os
+import zlib
 
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from typing import List, Union
@@ -75,6 +76,10 @@ def get_parser() -> ArgumentParser:
     # Add force binary option
     advanced_group.add_argument("--force-binary", dest="force_binary", action="store_true",
                         help="Force byte compaction mode (useful for pre-compressed data).")
+                        
+    # Add compression option
+    advanced_group.add_argument("--compress", dest="compress", action="store_true",
+                        help="Precompress data using zlib before encoding (useful for text data).")
 
     # Create a group for macro options
     macro_group = parser.add_argument_group('Macro PDF417 Options (for large data)')
@@ -106,6 +111,13 @@ def do_encode(raw_args: List[str]):
         return
 
     try:
+        # Apply compression if requested
+        if args.compress:
+            if isinstance(data, str):
+                data = data.encode(args.encoding)
+            data = zlib.compress(data)
+            args.force_binary = True  # Force binary mode for compressed data
+            
         if args.use_macro:
             # Use macro encoding for large data
             from pdf417gen import encode_macro
