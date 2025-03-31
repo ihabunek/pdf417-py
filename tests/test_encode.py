@@ -1,7 +1,7 @@
 import pytest
 
 from pdf417gen.compaction import TEXT_LATCH, NUMERIC_LATCH
-from pdf417gen.encoding import encode, encode_high, to_bytes
+from pdf417gen.encoding import encode, encode_high, to_bytes, encode_macro
 
 TEST_DATA = '\n'.join([
     'HRVHUB30',
@@ -90,6 +90,67 @@ def test_encode_unicode():
 
     assert encode(uc) == expected
     assert encode(by) == expected
+
+
+def test_force_binary_encode():
+    # Test forcing binary encoding for data that would normally use text compaction
+    text_data = "ABC123"
+    
+    # Expected encoding when forced to binary mode
+    expected = [
+        [130728, 120256, 108592, 101940, 82448, 120908,  70672,  69848, 128318, 260649],
+        [130728, 125456, 121288, 97968,  97968,  97968, 124380, 127396, 128352, 260649],
+        [130728,  86496, 102974, 71550, 100246, 102182,  95280,  69456, 86256,  260649]
+    ]
+    
+    # Force binary encoding
+    assert list(encode(text_data, force_binary=True)) == expected
+
+
+def test_encode_macro_single_segment():
+    # Test macro PDF417 with only one segment
+    test_data = "single segment"
+    file_id = [123]
+    
+    # Expected encoding for a single segment macro PDF417
+    # TODO: Consider hooking we can compare the high level encoding
+    expected = [
+       [
+        [130728, 125680, 110320, 98892, 121244, 117104, 103616, 69830, 128318, 260649],
+        [130728, 129678, 118888, 119184, 100598, 97968, 97968, 97968, 129720, 260649],
+        [130728, 86496, 102290, 116714, 106876, 83518, 106686, 100306, 119934, 260649],
+        [130728, 89720, 125680, 82440, 118968, 122738, 68996, 102088, 119520, 260649],
+        [130728, 120588, 123522, 110492, 72680, 80632, 120672, 108428, 120624, 260649],
+       ]
+    ]
+    
+    result = encode_macro(test_data, file_id=file_id)
+    assert len(result) == len(expected)
+    assert result[0] == expected[0]
+
+
+def test_encode_macro_multiple_segments():
+    # Test macro PDF417 with multiple segments
+    file_id = [456]
+    
+    # First segment
+    test_data = b"two segments"
+    result = encode_macro(test_data, segment_size=6, file_id=file_id)
+    assert len(result) == 2
+    expected1 = [
+        [130728, 125680, 120440, 69008, 105860, 105524, 103520, 68708, 128318, 260649],
+        [130728, 128280, 97968, 97968, 81702, 108422, 108292, 129198, 129720, 260649],
+        [130728, 86496, 100306, 120312, 106876, 83838, 71864, 120060, 108792, 260649],
+        [130728, 89720, 81384, 67686, 105024, 122562, 124818, 125086, 119520, 260649]
+    ]
+    assert result[0] == expected1
+    expected2 = [
+        [130728, 125680, 120440, 67022, 70688, 105240, 100390, 68708, 128318, 260649],
+        [130728, 128280, 97968, 81702, 108422, 108290, 129198, 81740, 129720, 260649],
+        [130728, 86496, 120312, 106876, 83838, 100308, 71964, 67496, 108792, 260649],
+        [130728, 89720, 102552, 100056, 94008, 99976, 121356, 117694, 119520, 260649]
+    ]
+    assert result[1] == expected2
 
 
 def test_max_barcode_size():
