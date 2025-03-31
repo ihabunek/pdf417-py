@@ -14,7 +14,7 @@ def decode_images(images: List[Image.Image]) -> bytearray:
         info_list.extend(decoder.barcodes_info) # type: ignore
     return PDF417Decoder.assemble_data(info_list) # type: ignore
 
-def encode_large_data(data: Union[str, bytes], columns: int = 10, scale: int = 3, force_binary: bool = False) -> list[Image.Image]:
+def encode_large_data(data: Union[str, bytes], columns: int = 10, scale: int = 3, force_binary: bool = False) -> List[Image.Image]:
     """
     Encode large data using Macro PDF417 and return a list of PIL Images.
     
