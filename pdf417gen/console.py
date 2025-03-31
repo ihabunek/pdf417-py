@@ -157,8 +157,6 @@ def do_encode(raw_args: List[str]):
                         y_offset += img.height
                     
                     combined_image.show()
-                    for img in images:
-                        img.show()
         else:
             # Standard encoding
             codes = encode(
