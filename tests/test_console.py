@@ -27,7 +27,8 @@ def test_encode(render_image, encode, capsys):
         text,
         columns=6,
         encoding='utf-8',
-        security_level=2
+        security_level=2,
+        force_binary=False,
     )
 
     render_image.assert_called_once_with(
@@ -67,6 +68,7 @@ def test_encode_exception(render_image, encode, capsys):
         columns=6,
         encoding='utf-8',
         security_level=2
+        force_binary=False,
     )
     render_image.assert_not_called()
 

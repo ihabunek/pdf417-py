@@ -3,6 +3,7 @@ import os
 
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from typing import List, Union
+from PIL import Image
 
 from pdf417gen import encode, render_image
 
@@ -145,7 +146,17 @@ def do_encode(raw_args: List[str]):
                     print(f"Generated {len(images)} barcode images. Showing first one.")
                     images[0].show()
                 else:
-                    # Show all images if there are just a few
+                    # Concatenate images into one before showing
+                    total_width = max(img.width for img in images)
+                    total_height = sum(img.height for img in images)
+                    combined_image = Image.new('RGB', (total_width, total_height), args.bg_color)
+                    
+                    y_offset = 0
+                    for img in images:
+                        combined_image.paste(img, (0, y_offset))
+                        y_offset += img.height
+                    
+                    combined_image.show()
                     for img in images:
                         img.show()
         else:
@@ -155,7 +166,7 @@ def do_encode(raw_args: List[str]):
                 columns=args.columns,
                 security_level=args.security_level,
                 encoding=args.encoding,
-                force_binary=args.force_binary,
+                **({"force_binary": args.force_binary} if args.force_binary else {})
             )
 
             image = render_image(
