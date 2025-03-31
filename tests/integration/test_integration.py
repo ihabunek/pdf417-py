@@ -2,7 +2,11 @@ import zlib
 import os
 import pytest
 from pdf417gen import encode, render_image
-from .testing_utils import encode_large_data, decode_images
+try:
+    from .testing_utils import encode_large_data, decode_images
+except ImportError:
+    # these tests will be skipped if pdf417decoder is not installed
+    pass
 
 def test_encode_and_decode_short_string():
     # Setup
