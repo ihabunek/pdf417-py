@@ -41,6 +41,7 @@ def encode(
     columns: int = 6,
     security_level: int = 2,
     encoding: str = "utf-8",
+    force_rows: Optional[int] = None,
     control_block: Optional[List[Codeword]] = None,
     force_binary: bool = False
 ) -> Barcode:
@@ -52,6 +53,7 @@ def encode(
         columns: Number of columns (1-30)
         security_level: Error correction level (0-8)
         encoding: Character encoding for string data
+        force_rows: Force exact number of rows (3-90). If None, the number of rows is calculated
         control_block: Optional control block for Macro PDF417
         force_binary: Force byte compaction mode (useful for pre-compressed data)
     
@@ -61,6 +63,10 @@ def encode(
     if columns < 1 or columns > 30:
         raise ValueError("'columns' must be between 1 and 30. Given: %r" % columns)
 
+    if force_rows is not None:
+        if force_rows < MIN_ROWS or force_rows > MAX_ROWS:
+            raise ValueError("'force_rows' must be between 3 and 90. Given: %r" % rows)
+ 
     if security_level < 0 or security_level > 8:
         raise ValueError("'security_level' must be between 1 and 8. Given: %r" % security_level)
 
@@ -68,7 +74,7 @@ def encode(
     data_bytes = to_bytes(data, encoding)
 
     # Convert data to code words and split into rows
-    code_words = encode_high(data_bytes, columns, security_level, control_block, force_binary)
+    code_words = encode_high(data_bytes, columns, security_level, control_block, force_rows, force_binary)
     rows = list(chunks(code_words, columns))
 
     return list(encode_rows(rows, columns, security_level))
@@ -100,6 +106,7 @@ def encode_high(
     columns: int, 
     security_level: int,
     control_block: Optional[List[Codeword]] = None,
+    force_rows: Optional[int] = None,
     force_binary: bool = False
 ) -> List[Codeword]:
     """Converts the input string to high level code words.
@@ -116,7 +123,7 @@ def encode_high(
     
     # Get the padding to align data to column count
     ec_count = 2 ** (security_level + 1)
-    padding_words = get_padding(payload_length, ec_count, columns)
+    padding_words = get_padding(payload_length, ec_count, columns, force_rows)
     padding_count = len(padding_words)
 
     # Length descriptor includes all components except error correction
@@ -185,14 +192,19 @@ def get_right_code_word(row_no: int, num_rows: int, num_cols: int, security_leve
     return 30 * (row_no // 3) + x
 
 
-def get_padding(data_count: int, ec_count: int, num_cols: int) -> List[Codeword]:
+def get_padding(data_count: int, ec_count: int, num_cols: int, force_rows: Optional[int]) -> List[Codeword]:
     # Total number of data words and error correction words, additionally
     # reserve 1 code word for the length descriptor
     total_count = data_count + ec_count + 1
-    mod = total_count % num_cols
 
-    return [PADDING_CODE_WORD] * (num_cols - mod) if mod > 0 else []
-
+    if force_rows is None:
+        mod = total_count % num_cols
+        return [PADDING_CODE_WORD] * (num_cols - mod) if mod > 0 else []
+    else:
+        fill = (force_rows * num_cols) - total_count
+        if fill < 0:
+            raise ValueError("Not enough space in the barcode to fit the data")
+        return [PADDING_CODE_WORD] * fill
 
 def encode_macro(
     data: Union[str, bytes],
@@ -200,6 +212,7 @@ def encode_macro(
     security_level: int = 2, 
     encoding: str = "utf-8",
     segment_size: int = 800,
+    force_rows: Optional[int] = None,
     file_id: Optional[List[Codeword]] = None,
     file_name: Optional[str] = None,
     segment_count: bool = True,
@@ -296,9 +309,10 @@ def encode_macro(
         # Encode segment with control block
         barcode = encode(
             segment_data, 
-            columns, 
+            columns,
             security_level, 
             encoding=encoding,
+            force_rows=force_rows,
             control_block=control_block,
             force_binary=force_binary
         )

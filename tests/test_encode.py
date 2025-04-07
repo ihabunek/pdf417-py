@@ -107,6 +107,14 @@ def test_force_binary_encode():
     assert list(encode(text_data, force_binary=True)) == expected
 
 
+def test_force_row_height():
+    # Test forcing a specific row height
+    # short that data will never naturally fill the row height
+    test_data = "?"
+    row_height = 15
+    
+    assert len(encode(test_data, force_rows=row_height, columns=6)) == row_height
+
 def test_encode_macro_single_segment():
     # Test macro PDF417 with only one segment
     test_data = "single segment"
