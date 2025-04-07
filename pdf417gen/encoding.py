@@ -65,8 +65,7 @@ def encode(
 
     if force_rows is not None:
         if force_rows < MIN_ROWS or force_rows > MAX_ROWS:
-            raise ValueError("'force_rows' must be between 3 and 90. Given: %r" % rows)
- 
+            raise ValueError("'force_rows' must be between 3 and 90. Given: %r" % force_rows)
     if security_level < 0 or security_level > 8:
         raise ValueError("'security_level' must be between 1 and 8. Given: %r" % security_level)
 
