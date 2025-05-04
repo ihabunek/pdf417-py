@@ -51,6 +51,10 @@ takes the input either as an argument or from stdin.
     # Piped input
     python -c "import this" | pdf417gen encode
 
+    # Use Macro PDF417 for large data with optional compression
+    # produces barcode_01.png, barcode_02.png, ...
+    pdf417gen encode --macro --compress -o barcode.png < large_data.txt
+
 
 Usage
 -----
@@ -138,6 +142,29 @@ produces 512. The default security level is 2.
     image.show()
 
 .. image:: https://raw.githubusercontent.com/ihabunek/pdf417-py/master/images/3_security_level.jpg
+
+Macro PDF417
+~~~~~~~~~~~~
+
+The `encode_macro` function can be used to encode large data sets that span multiple barcodes.
+
+.. code-block:: python
+
+    from pdf417gen import encode_macro, render_image
+
+    # Encode using Macro PDF417
+    codes_list = encode_macro(large_text, columns=10)
+
+    # Each barcode by default has some whitespace so we can create a page full of codes
+    y_offset = 0
+    for code in codes_list:
+        image = render_image(code)
+        combined_image.paste(image, (0, y_offset))
+        y_offset += image.height
+
+.. note::
+
+    Each barcode will be saved as `barcode_1.png`, `barcode_2.png`, etc.
 
 Render image
 ------------

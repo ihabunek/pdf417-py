@@ -18,7 +18,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade p
+          # Until pdf417decoder does another release, we need to install from the dev branch
+          pip install git+https://github.com/sparkfish/pdf417decoder.git@08c01172b7150bb2d2c0591566f43d45f9294fac#subdirectory=python
           pip install -e ".[test]"
       - name: Run tests
         run: |

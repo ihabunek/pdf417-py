@@ -17,8 +17,20 @@ BYTE_SWITCH = 913
 NUMERIC_LATCH = 902
 
 
-def compact(data: bytes) -> Iterable[Codeword]:
-    """Encodes given data into an array of PDF417 code words."""
+def compact(data: bytes, force_binary: bool = False) -> Iterable[Codeword]:
+    """
+    Encodes given data into an array of PDF417 code words.
+    
+    Args:
+        data: The data bytes to encode
+        force_binary: If True, forces byte compaction mode for all data,
+                     bypassing optimizations (useful for pre-compressed data)
+    """
+    if force_binary:
+        # Skip optimizations and directly use byte compaction
+        return _compact_chunks([Chunk(data, compact_bytes)])
+    
+    # Normal path with optimizations
     chunks = _split_to_chunks(data)
     chunks = optimizations.replace_short_numeric_chunks(chunks)
     chunks = optimizations.merge_chunks_with_same_compact_fn(chunks)
